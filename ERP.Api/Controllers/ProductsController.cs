@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ERP.Api.Dtos;
-using ERP.Api.Services;
+using ERP.Api.Interfaces;
 
 namespace ERP.Api.Controllers;
 

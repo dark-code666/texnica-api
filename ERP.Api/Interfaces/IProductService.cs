@@ -1,6 +1,6 @@
 using ERP.Api.Dtos;
 
-namespace ERP.Api.Services;
+namespace ERP.Api.Interfaces;
 
 public interface IProductService
 {
