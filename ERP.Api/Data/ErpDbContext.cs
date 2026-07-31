@@ -10,23 +10,23 @@ public class ErpDbContext : DbContext
     {
     }
 
-    public DbSet<Product> Products => Set<Product>();
+    public DbSet<User> Users => Set<User>();
+
+    //public DbSet<Product> Products => Set<Product>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Product>(entity =>
+
+       modelBuilder.Entity<User>(entity =>
         {
-            entity.ToTable("Products");
-            entity.HasKey(x => x.Id);
-            entity.Property(x => x.Name)
-                .IsRequired()
-                .HasMaxLength(150);
-            entity.Property(x => x.Description)
-                .HasMaxLength(500);
-            entity.Property(x => x.Price)
-                .HasPrecision(18, 2);
-            entity.Property(x => x.CreatedAt)
-                .HasDefaultValueSql("GETUTCDATE()");
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.UserName).IsRequired();
+            entity.Property(e => e.UserEmail).IsRequired();
+            entity.Property(e => e.Password).IsRequired();
+            entity.Property(e => e.Active).HasDefaultValue(true);
         });
+        // Configuraci�n de otras entidades...
+        base.OnModelCreating(modelBuilder);
+
     }
 }

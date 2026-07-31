@@ -4,6 +4,10 @@ using ERP.Api.Domain;
 using ERP.Api.Interfaces;
 using ERP.Api.Repositories;
 using ERP.Api.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,40 +17,113 @@ LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
 
 builder.WebHost.UseUrls("https://localhost:7123", "http://localhost:5123");
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ERP API", Version = "v1" });
+
+    // JWT in Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese el token JWT en el siguiente formato: Bearer {token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var dbServer = Environment.GetEnvironmentVariable("DB_SERVER")
-    ?? throw new InvalidOperationException("DB_SERVER is not configured.");
+    ?? Environment.GetEnvironmentVariable("DB_HOST")
+    ?? "(localdb)\\MSSQLLocalDB";
 var dbName = Environment.GetEnvironmentVariable("DB_NAME")
-    ?? throw new InvalidOperationException("DB_NAME is not configured.");
+    ?? Environment.GetEnvironmentVariable("DB_DATABASE")
+    ?? "ERPApiDb";
 var dbUser = Environment.GetEnvironmentVariable("DB_USER")
-    ?? throw new InvalidOperationException("DB_USER is not configured.");
+    ?? Environment.GetEnvironmentVariable("DB_USERNAME");
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD")
-    ?? throw new InvalidOperationException("DB_PASSWORD is not configured.");
+    ?? Environment.GetEnvironmentVariable("DB_PASS");
+var dbPort = Environment.GetEnvironmentVariable("DB_PORT");
 
-var connectionString =
-    $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};Encrypt=True;TrustServerCertificate=True;";
+var serverAddress = string.IsNullOrWhiteSpace(dbPort)
+    ? dbServer
+    : $"{dbServer},{dbPort}";
+
+var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPassword)
+    ? $"Server={serverAddress};Database={dbName};Integrated Security=True;TrustServerCertificate=True;"
+    : $"Server={serverAddress};Database={dbName};User Id={dbUser};Password={dbPassword};Encrypt=True;TrustServerCertificate=True;";
 
 builder.Services.AddDbContext<ErpDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
+                ?? builder.Configuration["Jwt:Secret"] 
+                ?? "DefaultSuperSecretKey2026!ForJwtTokens";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "ERP.Api",
+        ValidAudience = "ERP.Client",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+    };
+});
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.MapOpenApi();
-
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ERP API V1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapControllers();
 
