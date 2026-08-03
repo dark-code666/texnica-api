@@ -86,6 +86,8 @@ builder.Services.AddDbContext<ErpDbContext>(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
                 ?? builder.Configuration["Jwt:Secret"] 

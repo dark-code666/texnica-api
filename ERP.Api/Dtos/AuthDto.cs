@@ -19,10 +19,17 @@ public class UserDto
     public string UserName { get; set; } = null!;
     public string UserEmail { get; set; } = null!;
     public bool Active { get; set; }
+    public bool MustChangePassword { get; set; }
 }
 
 public class AuthResponseDto
 {
     public string Token { get; set; } = null!;
     public UserDto User { get; set; } = null!;
+}
+
+public class ChangePasswordDto
+{
+    public string CurrentPassword { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
 }
