@@ -11,9 +11,32 @@
 
     var builder = WebApplication.CreateBuilder(args);
 
-    LoadEnvFile(Path.Combine(builder.Environment.ContentRootPath, ".env"));
+    // Cargar .env según el entorno (ASPNETCORE_ENVIRONMENT)
+    //   Development  → .env.local
+    //   Production   → .env.production
+    //   Staging      → .env.staging
+    //   Si no existe el específico, cae en .env genérico
+    var envName = (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development").ToLowerInvariant();
+    var envFile = envName switch
+    {
+        "development" => ".env.local",
+        "production" => ".env.production",
+        _ => $".env.{envName}"
+    };
+
+    var envFilePath = Path.Combine(builder.Environment.ContentRootPath, envFile);
+    if (File.Exists(envFilePath))
+    {
+        LoadEnvFile(envFilePath);
+    }
+    else
+    {
+        // Fallback: .env genérico si no existe el específico del entorno
+        LoadEnvFile(Path.Combine(builder.Environment.ContentRootPath, ".env"));
+    }
+
+    // También cargar .env desde el directorio padre (raíz del repo) si existe
     LoadEnvFile(Path.Combine(builder.Environment.ContentRootPath, "..", ".env"));
-    LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
 
 
     builder.Services.AddCors(options =>

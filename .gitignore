@@ -1,3 +1,11 @@
 .vs/
 **/bin/
 **/obj/
+
+# Archivos de entorno con credenciales reales (NO commitear)
+.env
+.env.local
+.env.production
+.env.staging
+.env.*
+!.env.example
