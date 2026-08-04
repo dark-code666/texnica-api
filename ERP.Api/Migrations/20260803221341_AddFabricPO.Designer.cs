@@ -4,6 +4,7 @@ using ERP.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Api.Migrations
 {
     [DbContext(typeof(ErpDbContext))]
-    partial class ErpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803221341_AddFabricPO")]
+    partial class AddFabricPO
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,8 +90,16 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DataOwner")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FabricComponent")
                         .HasMaxLength(50)
@@ -138,6 +149,10 @@ namespace ERP.Api.Migrations
                     b.Property<DateTime>("RequiredCompletion")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Style")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Supplier")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -163,39 +178,15 @@ namespace ERP.Api.Migrations
 
             modelBuilder.Entity("ERP.Api.Domain.FabricPOFgpo", b =>
                 {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("FabricPOId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<decimal>("AllocatedQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
 
-                    b.Property<int>("FabricPOId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Style")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("ID");
+                    b.HasKey("FabricPOId", "FGPOId");
 
                     b.HasIndex("FGPOId");
-
-                    b.HasIndex("FabricPOId", "FGPOId")
-                        .IsUnique();
 
                     b.ToTable("FabricPOFgpos");
                 });
@@ -590,7 +581,7 @@ namespace ERP.Api.Migrations
             modelBuilder.Entity("ERP.Api.Domain.FabricPOFgpo", b =>
                 {
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
-                        .WithMany("FabricPOFgpos")
+                        .WithMany()
                         .HasForeignKey("FGPOId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -658,11 +649,6 @@ namespace ERP.Api.Migrations
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FabricPO", b =>
-                {
-                    b.Navigation("FabricPOFgpos");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.Fgpo", b =>
                 {
                     b.Navigation("FabricPOFgpos");
                 });

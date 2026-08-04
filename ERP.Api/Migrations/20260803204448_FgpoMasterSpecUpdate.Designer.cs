@@ -4,6 +4,7 @@ using ERP.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Api.Migrations
 {
     [DbContext(typeof(ErpDbContext))]
-    partial class ErpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803204448_FgpoMasterSpecUpdate")]
+    partial class FgpoMasterSpecUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,136 +71,6 @@ namespace ERP.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Customers");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.FabricPO", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ApprovedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FabricComponent")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("FabricMill")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FabricPONumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("OrderedQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("POAmount")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("POStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("PlannedArrival")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("PlannedExport")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PurchaseOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("RequiredCompletion")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("UOM")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("FabricPONumber")
-                        .IsUnique();
-
-                    b.ToTable("FabricPOs");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.FabricPOFgpo", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<decimal>("AllocatedQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("Color")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("FGPOId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FabricPOId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastUpdated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Style")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("FGPOId");
-
-                    b.HasIndex("FabricPOId", "FGPOId")
-                        .IsUnique();
-
-                    b.ToTable("FabricPOFgpos");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FabricRequirement", b =>
@@ -587,25 +460,6 @@ namespace ERP.Api.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ERP.Api.Domain.FabricPOFgpo", b =>
-                {
-                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
-                        .WithMany("FabricPOFgpos")
-                        .HasForeignKey("FGPOId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Api.Domain.FabricPO", "FabricPO")
-                        .WithMany("FabricPOFgpos")
-                        .HasForeignKey("FabricPOId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FGPO");
-
-                    b.Navigation("FabricPO");
-                });
-
             modelBuilder.Entity("ERP.Api.Domain.FabricRequirement", b =>
                 {
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
@@ -655,16 +509,6 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.FabricPO", b =>
-                {
-                    b.Navigation("FabricPOFgpos");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.Fgpo", b =>
-                {
-                    b.Navigation("FabricPOFgpos");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Permission", b =>

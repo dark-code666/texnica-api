@@ -87,13 +87,20 @@
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
+    builder.Services.AddScoped<IFgpoService, FgpoService>();
+    builder.Services.AddScoped<ICustomerService, CustomerService>();
+    builder.Services.AddScoped<IFactoryService, FactoryService>();
+    builder.Services.AddScoped<IFabricRequirementService, FabricRequirementService>();
+    builder.Services.AddScoped<IFabricPOService, FabricPOService>();
+
+
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
                 ?? builder.Configuration["Jwt:Secret"];
 
 if (string.IsNullOrWhiteSpace(jwtSecret))
 {
-    throw new InvalidOperationException("JWT_SECRET no está configurado.");
+    throw new InvalidOperationException("JWT_SECRET no estÃ¡ configurado.");
 }
 builder.Services.AddAuthentication(options =>
     {
