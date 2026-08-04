@@ -11,9 +11,10 @@ public class DesignTimeErpDbContextFactory : IDesignTimeDbContextFactory<ErpDbCo
         LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
         LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 
-        var dbServer = GetEnv("DB_HOST")
+        var dbServer = GetEnv("DB_SERVER")
             ?? GetEnv("DB_HOST")
             ?? "(localdb)\\MSSQLLocalDB";
+
         var dbName = GetEnv("DB_NAME")
             ?? GetEnv("DB_DATABASE")
             ?? "ERPApiDb";
