@@ -23,8 +23,6 @@ public class Fgpo : BaseEntity
     public decimal OverproductionQty { get; set; }
     public string? DataOwner { get; set; }
     public string? Remarks { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
 
     // Relación inversa: un FGPO puede estar cubierto por varios Fabric PO
     public ICollection<FabricPOFgpo> FabricPOFgpos { get; set; } = new List<FabricPOFgpo>();

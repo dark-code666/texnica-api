@@ -4,6 +4,7 @@ using ERP.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Api.Migrations
 {
     [DbContext(typeof(ErpDbContext))]
-    partial class ErpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260804162549_AddMillProductionAndMillTest")]
+    partial class AddMillProductionAndMillTest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,375 +24,6 @@ namespace ERP.Api.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("ERP.Api.Domain.CatalogValue", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("Type", "Value")
-                        .IsUnique();
-
-                    b.ToTable("CatalogValues");
-
-                    b.HasData(
-                        new
-                        {
-                            ID = 1,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Yards"
-                        },
-                        new
-                        {
-                            ID = 2,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Meters"
-                        },
-                        new
-                        {
-                            ID = 3,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Kilograms"
-                        },
-                        new
-                        {
-                            ID = 4,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Pounds"
-                        },
-                        new
-                        {
-                            ID = 5,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Rolls"
-                        },
-                        new
-                        {
-                            ID = 6,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "UOM",
-                            Value = "Pieces"
-                        },
-                        new
-                        {
-                            ID = 7,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Body Fabric"
-                        },
-                        new
-                        {
-                            ID = 8,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Rib"
-                        },
-                        new
-                        {
-                            ID = 9,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Shoulder Tape"
-                        },
-                        new
-                        {
-                            ID = 10,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Neck Tape"
-                        },
-                        new
-                        {
-                            ID = 11,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Pocketing"
-                        },
-                        new
-                        {
-                            ID = 12,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "FabricComponent",
-                            Value = "Other"
-                        },
-                        new
-                        {
-                            ID = 13,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "Not Started"
-                        },
-                        new
-                        {
-                            ID = 14,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "Pending"
-                        },
-                        new
-                        {
-                            ID = 15,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "In Progress"
-                        },
-                        new
-                        {
-                            ID = 16,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "Partially Completed"
-                        },
-                        new
-                        {
-                            ID = 17,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "Completed"
-                        },
-                        new
-                        {
-                            ID = 18,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "On Hold"
-                        },
-                        new
-                        {
-                            ID = 19,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ProductionStatus",
-                            Value = "Cancelled"
-                        },
-                        new
-                        {
-                            ID = 20,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "TestResult",
-                            Value = "Pending"
-                        },
-                        new
-                        {
-                            ID = 21,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "TestResult",
-                            Value = "Testing"
-                        },
-                        new
-                        {
-                            ID = 22,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "TestResult",
-                            Value = "Passed"
-                        },
-                        new
-                        {
-                            ID = 23,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "TestResult",
-                            Value = "Conditionally Passed"
-                        },
-                        new
-                        {
-                            ID = 24,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "TestResult",
-                            Value = "Failed"
-                        },
-                        new
-                        {
-                            ID = 25,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "Planned"
-                        },
-                        new
-                        {
-                            ID = 26,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "Booking Confirmed"
-                        },
-                        new
-                        {
-                            ID = 27,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "Exported"
-                        },
-                        new
-                        {
-                            ID = 28,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "In Transit"
-                        },
-                        new
-                        {
-                            ID = 29,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "Delivered"
-                        },
-                        new
-                        {
-                            ID = 30,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "ShipmentStatus",
-                            Value = "Cancelled"
-                        },
-                        new
-                        {
-                            ID = 31,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Not Started"
-                        },
-                        new
-                        {
-                            ID = 32,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Pending"
-                        },
-                        new
-                        {
-                            ID = 33,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "In Progress"
-                        },
-                        new
-                        {
-                            ID = 34,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Partially Completed"
-                        },
-                        new
-                        {
-                            ID = 35,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Completed"
-                        },
-                        new
-                        {
-                            ID = 36,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Approved"
-                        },
-                        new
-                        {
-                            ID = 37,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Conditionally Approved"
-                        },
-                        new
-                        {
-                            ID = 38,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Rejected"
-                        },
-                        new
-                        {
-                            ID = 39,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "On Hold"
-                        },
-                        new
-                        {
-                            ID = 40,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Closed"
-                        },
-                        new
-                        {
-                            ID = 41,
-                            Active = true,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Type = "POStatus",
-                            Value = "Cancelled"
-                        });
-                });
 
             modelBuilder.Entity("ERP.Api.Domain.Customer", b =>
                 {
@@ -413,9 +47,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -459,9 +91,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FabricComponent")
                         .HasMaxLength(50)
@@ -611,9 +241,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DataOwner")
                         .HasMaxLength(100)
@@ -679,130 +307,6 @@ namespace ERP.Api.Migrations
                     b.ToTable("FabricRequirements");
                 });
 
-            modelBuilder.Entity("ERP.Api.Domain.FabricShipment", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ContainerAWB")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("DeliveredToTexnicaDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ETA")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ETD")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("FGPOId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FabricPOId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("InTransitQuantity")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("CAST((CASE WHEN [DeliveredToTexnicaDate] IS NULL THEN [ShippedQuantity] ELSE 0 END) AS decimal(18,4))");
-
-                    b.Property<string>("InvoiceNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("LotId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LotNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("PackingList")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<decimal>("RemainingToDeliver")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("CAST((CASE WHEN [DeliveredToTexnicaDate] IS NULL THEN [ShippedQuantity] ELSE 0 END) AS decimal(18,4))");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<decimal>("RollQty")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("ShipmentNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ShipmentStatus")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("ShippedQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("ShippedWeight")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<string>("ShippingMethod")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("UOM")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("FabricPOId");
-
-                    b.HasIndex("LotId");
-
-                    b.HasIndex("LotNumber");
-
-                    b.HasIndex("ShipmentNumber")
-                        .IsUnique();
-
-                    b.HasIndex("ShipmentStatus");
-
-                    b.HasIndex("FGPOId", "FabricPOId");
-
-                    b.ToTable("FabricShipments");
-                });
-
             modelBuilder.Entity("ERP.Api.Domain.Factory", b =>
                 {
                     b.Property<int>("ID")
@@ -821,9 +325,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
@@ -871,9 +373,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -962,54 +462,6 @@ namespace ERP.Api.Migrations
                     b.ToTable("Fgpos");
                 });
 
-            modelBuilder.Entity("ERP.Api.Domain.Lot", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<bool>("Active")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("FGPOId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FabricPOId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LotNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("ProducedQuantity")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("FGPOId");
-
-                    b.HasIndex("LotNumber")
-                        .IsUnique();
-
-                    b.HasIndex("FabricPOId", "FGPOId");
-
-                    b.ToTable("Lots");
-                });
-
             modelBuilder.Entity("ERP.Api.Domain.MillProduction", b =>
                 {
                     b.Property<int>("ID")
@@ -1031,14 +483,11 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<decimal>("CompletionPercentage")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("CAST((CASE WHEN [PlannedQuantity] = 0 THEN 0 ELSE ([ProducedQuantity] / [PlannedQuantity]) * 100 END) AS decimal(18,4))");
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("DataOwner")
                         .HasMaxLength(100)
@@ -1056,9 +505,6 @@ namespace ERP.Api.Migrations
 
                     b.Property<DateTime?>("FinishDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int?>("LotId")
-                        .HasColumnType("int");
 
                     b.Property<string>("LotNumber")
                         .HasMaxLength(50)
@@ -1111,15 +557,9 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("FGPOId");
+
                     b.HasIndex("FabricPOId");
-
-                    b.HasIndex("LotId");
-
-                    b.HasIndex("LotNumber");
-
-                    b.HasIndex("Status");
-
-                    b.HasIndex("FGPOId", "FabricPOId");
 
                     b.ToTable("MillProductions");
                 });
@@ -1165,9 +605,7 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
@@ -1182,9 +620,6 @@ namespace ERP.Api.Migrations
                     b.Property<decimal>("LengthShrinkagePercentage")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
-
-                    b.Property<int?>("LotId")
-                        .HasColumnType("int");
 
                     b.Property<string>("LotNumber")
                         .HasMaxLength(50)
@@ -1234,15 +669,9 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("FGPOId");
+
                     b.HasIndex("FabricPOId");
-
-                    b.HasIndex("LotId");
-
-                    b.HasIndex("LotNumber");
-
-                    b.HasIndex("TestResult");
-
-                    b.HasIndex("FGPOId", "FabricPOId");
 
                     b.ToTable("MillTests");
                 });
@@ -1260,11 +689,6 @@ namespace ERP.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -1279,9 +703,6 @@ namespace ERP.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -1301,11 +722,6 @@ namespace ERP.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -1315,9 +731,6 @@ namespace ERP.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -1335,19 +748,11 @@ namespace ERP.Api.Migrations
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -1372,11 +777,6 @@ namespace ERP.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
                     b.Property<bool>("MustChangePassword")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -1388,9 +788,6 @@ namespace ERP.Api.Migrations
 
                     b.Property<int?>("RoleId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserEmail")
                         .IsRequired()
@@ -1437,32 +834,6 @@ namespace ERP.Api.Migrations
                     b.Navigation("FGPO");
                 });
 
-            modelBuilder.Entity("ERP.Api.Domain.FabricShipment", b =>
-                {
-                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
-                        .WithMany()
-                        .HasForeignKey("FGPOId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Api.Domain.FabricPO", "FabricPO")
-                        .WithMany()
-                        .HasForeignKey("FabricPOId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Api.Domain.Lot", "Lot")
-                        .WithMany()
-                        .HasForeignKey("LotId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("FGPO");
-
-                    b.Navigation("FabricPO");
-
-                    b.Navigation("Lot");
-                });
-
             modelBuilder.Entity("ERP.Api.Domain.Fgpo", b =>
                 {
                     b.HasOne("ERP.Api.Domain.Customer", "Customer")
@@ -1472,25 +843,6 @@ namespace ERP.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
-                });
-
-            modelBuilder.Entity("ERP.Api.Domain.Lot", b =>
-                {
-                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
-                        .WithMany()
-                        .HasForeignKey("FGPOId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ERP.Api.Domain.FabricPO", "FabricPO")
-                        .WithMany()
-                        .HasForeignKey("FabricPOId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FGPO");
-
-                    b.Navigation("FabricPO");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.MillProduction", b =>
@@ -1507,16 +859,9 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ERP.Api.Domain.Lot", "Lot")
-                        .WithMany()
-                        .HasForeignKey("LotId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
-
-                    b.Navigation("Lot");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.MillTest", b =>
@@ -1533,16 +878,9 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ERP.Api.Domain.Lot", "Lot")
-                        .WithMany()
-                        .HasForeignKey("LotId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
-
-                    b.Navigation("Lot");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.RolePermission", b =>

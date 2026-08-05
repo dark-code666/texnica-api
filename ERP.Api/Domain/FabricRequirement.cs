@@ -23,6 +23,4 @@ public class FabricRequirement : BaseEntity
     public string? Status { get; set; }
     public string? DataOwner { get; set; }
     public string? Remarks { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
 }

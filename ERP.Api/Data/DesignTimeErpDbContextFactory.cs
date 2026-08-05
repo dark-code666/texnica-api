@@ -8,7 +8,26 @@ public class DesignTimeErpDbContextFactory : IDesignTimeDbContextFactory<ErpDbCo
 {
     public ErpDbContext CreateDbContext(string[] args)
     {
-        LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+        // Cargar .env según el entorno, igual que Program.cs
+        var envName = (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development").ToLowerInvariant();
+        var envFile = envName switch
+        {
+            "development" => ".env.local",
+            "production" => ".env.production",
+            _ => $".env.{envName}"
+        };
+
+        var envFilePath = Path.Combine(Directory.GetCurrentDirectory(), envFile);
+        if (File.Exists(envFilePath))
+        {
+            LoadEnvFile(envFilePath);
+        }
+        else
+        {
+            LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+        }
+
+        // También cargar .env desde el directorio padre (raíz del repo) si existe
         LoadEnvFile(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 
         var dbServer = GetEnv("DB_SERVER")

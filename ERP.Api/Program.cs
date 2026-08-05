@@ -115,6 +115,10 @@
     builder.Services.AddScoped<IFactoryService, FactoryService>();
     builder.Services.AddScoped<IFabricRequirementService, FabricRequirementService>();
     builder.Services.AddScoped<IFabricPOService, FabricPOService>();
+    builder.Services.AddScoped<IMillProductionService, MillProductionService>();
+    builder.Services.AddScoped<IMillTestService, MillTestService>();
+    builder.Services.AddScoped<IFabricShipmentService, FabricShipmentService>();
+    builder.Services.AddScoped<ICatalogService, CatalogService>();
 
 
 
