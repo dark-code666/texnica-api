@@ -118,6 +118,12 @@
     builder.Services.AddScoped<IMillProductionService, MillProductionService>();
     builder.Services.AddScoped<IMillTestService, MillTestService>();
     builder.Services.AddScoped<IFabricShipmentService, FabricShipmentService>();
+    builder.Services.AddScoped<IFabricReceivingService, FabricReceivingService>();
+    builder.Services.AddScoped<IRollReceivingService, RollReceivingService>();
+    builder.Services.AddScoped<IFourPointService, FourPointService>();
+    builder.Services.AddScoped<IInternalTestService, InternalTestService>();
+    builder.Services.AddScoped<IShadeMatchService, ShadeMatchService>();
+    builder.Services.AddScoped<IInlineQualityService, InlineQualityService>();
     builder.Services.AddScoped<ICatalogService, CatalogService>();
 
 

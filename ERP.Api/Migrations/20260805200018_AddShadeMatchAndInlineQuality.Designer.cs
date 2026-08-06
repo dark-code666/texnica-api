@@ -4,6 +4,7 @@ using ERP.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERP.Api.Migrations
 {
     [DbContext(typeof(ErpDbContext))]
-    partial class ErpDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260805200018_AddShadeMatchAndInlineQuality")]
+    partial class AddShadeMatchAndInlineQuality
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1313,9 +1316,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Result")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(450)")
-                        .HasComputedColumnSql("CAST((CASE WHEN [CheckedQty] = 0 THEN 'Pending' WHEN [CriticalDefects] > 0 OR ([DefectivePieces] / CAST([CheckedQty] AS decimal(18,4))) * 100 > [MaxAllowed] THEN 'Failed' ELSE 'Passed' END) AS nvarchar(50))");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("RootCause")
                         .HasMaxLength(1000)

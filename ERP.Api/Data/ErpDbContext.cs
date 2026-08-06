@@ -22,6 +22,12 @@ public class ErpDbContext : DbContext
     public DbSet<MillProduction> MillProductions => Set<MillProduction>();
     public DbSet<MillTest> MillTests => Set<MillTest>();
     public DbSet<FabricShipment> FabricShipments => Set<FabricShipment>();
+    public DbSet<FabricReceiving> FabricReceivings => Set<FabricReceiving>();
+    public DbSet<RollReceiving> RollReceivings => Set<RollReceiving>();
+    public DbSet<FourPointInspection> FourPointInspections => Set<FourPointInspection>();
+    public DbSet<InternalTest> InternalTests => Set<InternalTest>();
+    public DbSet<ShadeMatch> ShadeMatches => Set<ShadeMatch>();
+    public DbSet<InlineQuality> InlineQualities => Set<InlineQuality>();
     public DbSet<Lot> Lots => Set<Lot>();
     public DbSet<CatalogValue> CatalogValues => Set<CatalogValue>();
 
@@ -355,6 +361,292 @@ public class ErpDbContext : DbContext
                   .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<FabricReceiving>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ReceivingNumber).HasMaxLength(50);
+            entity.HasIndex(e => e.ReceivingNumber).IsUnique();
+            entity.Property(e => e.ShipmentNumber).HasMaxLength(50);
+            entity.Property(e => e.Supplier).HasMaxLength(100);
+            entity.Property(e => e.PackingListQty).HasPrecision(18, 4);
+            entity.Property(e => e.ActualReceivedQty).HasPrecision(18, 4);
+            // Columnas calculadas por SQL — varianzas automáticas
+            entity.Property(e => e.ReceivingVariance)
+                  .HasComputedColumnSql("CAST(([ActualReceivedQty] - [PackingListQty]) AS decimal(18,4))");
+            entity.Property(e => e.ReceivingShortage)
+                  .HasComputedColumnSql("CAST((CASE WHEN [PackingListQty] > [ActualReceivedQty] THEN [PackingListQty] - [ActualReceivedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.ReceivingOverQty)
+                  .HasComputedColumnSql("CAST((CASE WHEN [ActualReceivedQty] > [PackingListQty] THEN [ActualReceivedQty] - [PackingListQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.ExpectedRolls);
+            entity.Property(e => e.ReceivedRolls);
+            entity.Property(e => e.MissingRolls)
+                  .HasComputedColumnSql("CAST((CASE WHEN [ExpectedRolls] > [ReceivedRolls] THEN [ExpectedRolls] - [ReceivedRolls] ELSE 0 END) AS int)");
+            entity.Property(e => e.ReceivingStatus).HasMaxLength(50);
+            entity.Property(e => e.WarehouseLocation).HasMaxLength(100);
+            entity.Property(e => e.ReceivedBy).HasMaxLength(100);
+            entity.Property(e => e.DataOwner).HasMaxLength(100);
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => new { e.FGPOId, e.FabricPOId });
+            entity.HasIndex(e => e.ShipmentNumber);
+            entity.HasIndex(e => e.ReceivingStatus);
+
+            entity.HasOne(r => r.FabricPO)
+                  .WithMany()
+                  .HasForeignKey(r => r.FabricPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.FGPO)
+                  .WithMany()
+                  .HasForeignKey(r => r.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<RollReceiving>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ReceivingNumber).HasMaxLength(50);
+            entity.Property(e => e.Supplier).HasMaxLength(100);
+            entity.Property(e => e.LotNumber).HasMaxLength(50);
+            entity.Property(e => e.RollNumber).HasMaxLength(50);
+            entity.Property(e => e.SupplierRollNumber).HasMaxLength(50);
+            entity.Property(e => e.Color).HasMaxLength(50);
+            entity.Property(e => e.GrossWeight).HasPrecision(18, 4);
+            entity.Property(e => e.NetWeight).HasPrecision(18, 4);
+            entity.Property(e => e.ActualYardage).HasPrecision(18, 4);
+            entity.Property(e => e.ActualWidth).HasPrecision(18, 4);
+            entity.Property(e => e.ActualGSM).HasPrecision(18, 4);
+            entity.Property(e => e.ShadeGroup).HasMaxLength(50);
+            entity.Property(e => e.DamagedQty).HasPrecision(18, 4);
+            entity.Property(e => e.Condition).HasMaxLength(100);
+            entity.Property(e => e.WarehouseLocation).HasMaxLength(100);
+            entity.Property(e => e.ReceivedDate).IsRequired();
+            entity.Property(e => e.DataOwner).HasMaxLength(100);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => new { e.FGPOId, e.FabricPOId });
+            entity.HasIndex(e => e.LotNumber);
+            entity.HasIndex(e => e.RollNumber);
+
+            entity.HasOne(r => r.Receiving)
+                  .WithMany()
+                  .HasForeignKey(r => r.ReceivingId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.FabricPO)
+                  .WithMany()
+                  .HasForeignKey(r => r.FabricPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.FGPO)
+                  .WithMany()
+                  .HasForeignKey(r => r.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(r => r.Lot)
+                  .WithMany()
+                  .HasForeignKey(r => r.LotId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<FourPointInspection>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.InspectionDate).IsRequired();
+            entity.Property(e => e.ReceivingNumber).HasMaxLength(50);
+            entity.Property(e => e.LotNumber).HasMaxLength(50);
+            entity.Property(e => e.RollNumber).HasMaxLength(50);
+            entity.Property(e => e.Width).HasPrecision(18, 4);
+            entity.Property(e => e.InspectedLength).HasPrecision(18, 4);
+            entity.Property(e => e.Points1).IsRequired();
+            entity.Property(e => e.Points2).IsRequired();
+            entity.Property(e => e.Points3).IsRequired();
+            entity.Property(e => e.Points4).IsRequired();
+            // Columnas calculadas por SQL — TotalPoints y puntos por 100 yd²
+            entity.Property(e => e.TotalPoints)
+                  .HasComputedColumnSql("CAST(([Points1] + (2 * [Points2]) + (3 * [Points3]) + (4 * [Points4])) AS int)");
+            entity.Property(e => e.PointsPer100SqYd)
+                  .HasComputedColumnSql("CAST((CASE WHEN [Width] = 0 OR [InspectedLength] = 0 THEN 0 ELSE (([Points1] + (2 * [Points2]) + (3 * [Points3]) + (4 * [Points4])) * 3600.0) / ([Width] * [InspectedLength]) END) AS decimal(18,4))");
+            entity.Property(e => e.MaxAllowed).HasPrecision(18, 4);
+            entity.Property(e => e.AcceptedQty).IsRequired();
+            entity.Property(e => e.RejectedQty).IsRequired();
+            entity.Property(e => e.HoldQty).IsRequired();
+            entity.Property(e => e.Result).HasMaxLength(50);
+            entity.Property(e => e.Inspector).HasMaxLength(100);
+            entity.Property(e => e.ReportLink).HasMaxLength(500);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => new { e.FGPOId, e.FabricPOId });
+            entity.HasIndex(e => e.RollNumber);
+            entity.HasIndex(e => e.Result);
+            entity.HasIndex(e => e.ReceivingId);
+
+            entity.HasOne(i => i.Receiving)
+                  .WithMany()
+                  .HasForeignKey(i => i.ReceivingId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(i => i.FabricPO)
+                  .WithMany()
+                  .HasForeignKey(i => i.FabricPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(i => i.FGPO)
+                  .WithMany()
+                  .HasForeignKey(i => i.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(i => i.Lot)
+                  .WithMany()
+                  .HasForeignKey(i => i.LotId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<InternalTest>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.TestDate).IsRequired();
+            entity.Property(e => e.Supplier).HasMaxLength(100);
+            entity.Property(e => e.LotNumber).HasMaxLength(50);
+            entity.Property(e => e.Color).HasMaxLength(50);
+            entity.Property(e => e.ActualWidth).HasPrecision(18, 4);
+            entity.Property(e => e.SpecimenAreaCm2).HasPrecision(18, 4);
+            entity.Property(e => e.WeightBeforeG).HasPrecision(18, 4);
+            entity.Property(e => e.WeightAfterG).HasPrecision(18, 4);
+            entity.Property(e => e.TargetGSM).HasPrecision(18, 4);
+            // Columnas calculadas por SQL
+            entity.Property(e => e.GsmBefore)
+                  .HasComputedColumnSql("CAST((CASE WHEN [SpecimenAreaCm2] = 0 THEN 0 ELSE ([WeightBeforeG] / ([SpecimenAreaCm2] / 10000.0)) END) AS decimal(18,4))");
+            entity.Property(e => e.GsmAfter)
+                  .HasComputedColumnSql("CAST((CASE WHEN [SpecimenAreaCm2] = 0 THEN 0 ELSE ([WeightAfterG] / ([SpecimenAreaCm2] / 10000.0)) END) AS decimal(18,4))");
+            entity.Property(e => e.GsmVariancePct)
+                  .HasComputedColumnSql("CAST((CASE WHEN [TargetGSM] = 0 OR [SpecimenAreaCm2] = 0 THEN 0 ELSE ((([WeightAfterG] / ([SpecimenAreaCm2] / 10000.0)) - [TargetGSM]) / [TargetGSM]) * 100 END) AS decimal(18,4))");
+            entity.Property(e => e.LengthBefore).HasPrecision(18, 4);
+            entity.Property(e => e.LengthAfter).HasPrecision(18, 4);
+            entity.Property(e => e.LengthShrinkagePct)
+                  .HasComputedColumnSql("CAST((CASE WHEN [LengthBefore] = 0 THEN 0 ELSE (([LengthBefore] - [LengthAfter]) / [LengthBefore]) * 100 END) AS decimal(18,4))");
+            entity.Property(e => e.WidthBefore).HasPrecision(18, 4);
+            entity.Property(e => e.WidthAfter).HasPrecision(18, 4);
+            entity.Property(e => e.WidthShrinkagePct)
+                  .HasComputedColumnSql("CAST((CASE WHEN [WidthBefore] = 0 THEN 0 ELSE (([WidthBefore] - [WidthAfter]) / [WidthBefore]) * 100 END) AS decimal(18,4))");
+            entity.Property(e => e.TorquePct).HasPrecision(18, 4);
+            entity.Property(e => e.BowingPct).HasPrecision(18, 4);
+            entity.Property(e => e.SkewingPct).HasPrecision(18, 4);
+            entity.Property(e => e.ShadeResult).HasMaxLength(50);
+            entity.Property(e => e.WashAppearance).HasMaxLength(100);
+            entity.Property(e => e.HandFeel).HasMaxLength(100);
+            entity.Property(e => e.TestResult).HasMaxLength(50);
+            entity.Property(e => e.TestedBy).HasMaxLength(100);
+            entity.Property(e => e.ApprovedBy).HasMaxLength(100);
+            entity.Property(e => e.ReportLink).HasMaxLength(500);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => new { e.FGPOId, e.FabricPOId });
+            entity.HasIndex(e => e.LotNumber);
+            entity.HasIndex(e => e.TestResult);
+
+            entity.HasOne(t => t.FabricPO)
+                  .WithMany()
+                  .HasForeignKey(t => t.FabricPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.FGPO)
+                  .WithMany()
+                  .HasForeignKey(t => t.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(t => t.Lot)
+                  .WithMany()
+                  .HasForeignKey(t => t.LotId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<ShadeMatch>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ReviewDate).IsRequired();
+            entity.Property(e => e.BodyFabricLot).HasMaxLength(50);
+            entity.Property(e => e.RibLot).HasMaxLength(50);
+            entity.Property(e => e.ShoulderTapeLot).HasMaxLength(50);
+            entity.Property(e => e.BodyShadeGroup).HasMaxLength(50);
+            entity.Property(e => e.RibShadeGroup).HasMaxLength(50);
+            entity.Property(e => e.TapeShadeGroup).HasMaxLength(50);
+            entity.Property(e => e.BodyVsRib).HasMaxLength(100);
+            entity.Property(e => e.BodyVsTape).HasMaxLength(100);
+            entity.Property(e => e.LightSource).HasMaxLength(50);
+            entity.Property(e => e.BeforeWashResult).HasMaxLength(100);
+            entity.Property(e => e.AfterWashResult).HasMaxLength(100);
+            entity.Property(e => e.OverallResult).HasMaxLength(50);
+            entity.Property(e => e.ApprovedBy).HasMaxLength(100);
+            entity.Property(e => e.ReportLink).HasMaxLength(500);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => e.FGPOId);
+            entity.HasIndex(e => e.OverallResult);
+            entity.HasIndex(e => e.BodyFabricLot);
+
+            entity.HasOne(s => s.FGPO)
+                  .WithMany()
+                  .HasForeignKey(s => s.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<InlineQuality>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.InspectionDate).IsRequired();
+            entity.Property(e => e.Time).HasMaxLength(20);
+            entity.Property(e => e.Line).HasMaxLength(50);
+            entity.Property(e => e.Operation).HasMaxLength(100);
+            entity.Property(e => e.Operator).HasMaxLength(100);
+            entity.Property(e => e.CheckedQty).IsRequired();
+            entity.Property(e => e.CriticalDefects).IsRequired();
+            entity.Property(e => e.MajorDefects).IsRequired();
+            entity.Property(e => e.MinorDefects).IsRequired();
+            // Columnas calculadas por SQL — totales y porcentajes automáticos
+            entity.Property(e => e.TotalDefects)
+                  .HasComputedColumnSql("CAST(([CriticalDefects] + [MajorDefects] + [MinorDefects]) AS int)");
+            entity.Property(e => e.DhuPct)
+                  .HasComputedColumnSql("CAST((CASE WHEN [CheckedQty] = 0 THEN 0 ELSE (([CriticalDefects] + [MajorDefects] + [MinorDefects]) / CAST([CheckedQty] AS decimal(18,4))) * 100 END) AS decimal(18,4))");
+            entity.Property(e => e.DefectivePieces).IsRequired();
+            entity.Property(e => e.DefectiveRatePct)
+                  .HasComputedColumnSql("CAST((CASE WHEN [CheckedQty] = 0 THEN 0 ELSE ([DefectivePieces] / CAST([CheckedQty] AS decimal(18,4))) * 100 END) AS decimal(18,4))");
+            entity.Property(e => e.MaxAllowed).HasPrecision(18, 4);
+            // Result calculado: Failed si hay defectos críticos O Defective Rate% > MaxAllowed (según Excel), si no Passed
+            entity.Property(e => e.Result)
+                  .HasComputedColumnSql("CAST((CASE WHEN [CheckedQty] = 0 THEN 'Pending' WHEN [CriticalDefects] > 0 OR ([DefectivePieces] / CAST([CheckedQty] AS decimal(18,4))) * 100 > [MaxAllowed] THEN 'Failed' ELSE 'Passed' END) AS nvarchar(50))");
+            entity.Property(e => e.Inspector).HasMaxLength(100);
+            entity.Property(e => e.ImmediateCorrection).HasMaxLength(1000);
+            entity.Property(e => e.RootCause).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            // Índices para consultas frecuentes
+            entity.HasIndex(e => e.FGPOId);
+            entity.HasIndex(e => e.Line);
+            entity.HasIndex(e => e.Result);
+
+            entity.HasOne(i => i.FGPO)
+                  .WithMany()
+                  .HasForeignKey(i => i.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Lot>(entity =>
         {
             entity.HasKey(e => e.ID);
@@ -434,7 +726,13 @@ public class ErpDbContext : DbContext
                 new CatalogValue { ID = 38, Type = "POStatus", Value = "Rejected" },
                 new CatalogValue { ID = 39, Type = "POStatus", Value = "On Hold" },
                 new CatalogValue { ID = 40, Type = "POStatus", Value = "Closed" },
-                new CatalogValue { ID = 41, Type = "POStatus", Value = "Cancelled" }
+                new CatalogValue { ID = 41, Type = "POStatus", Value = "Cancelled" },
+                // Receiving Status
+                new CatalogValue { ID = 42, Type = "ReceivingStatus", Value = "Pending" },
+                new CatalogValue { ID = 43, Type = "ReceivingStatus", Value = "Partially Received" },
+                new CatalogValue { ID = 44, Type = "ReceivingStatus", Value = "Fully Received" },
+                new CatalogValue { ID = 45, Type = "ReceivingStatus", Value = "Quantity Difference" },
+                new CatalogValue { ID = 46, Type = "ReceivingStatus", Value = "Rejected" }
             );
         });
 
