@@ -90,7 +90,6 @@ public class MillTestService : IMillTestService
         {
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
-            Supplier = dto.Supplier,
             LotNumber = dto.LotNumber,
             LotId = lot?.ID,
             Color = dto.Color,
@@ -106,7 +105,7 @@ public class MillTestService : IMillTestService
             WashAppearance = dto.WashAppearance,
             HandFeel = dto.HandFeel,
             TestDate = dto.TestDate,
-            TestedBy = dto.TestedBy,
+            TestedByUserId = dto.TestedByUserId,
             TestResult = dto.TestResult,
             ApprovedForExport = dto.ApprovedForExport,
             ReportLink = dto.ReportLink,
@@ -149,7 +148,6 @@ public class MillTestService : IMillTestService
 
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
-        entity.Supplier = dto.Supplier;
         entity.LotNumber = dto.LotNumber;
         entity.LotId = lot?.ID;
         entity.Color = dto.Color;
@@ -165,7 +163,7 @@ public class MillTestService : IMillTestService
         entity.WashAppearance = dto.WashAppearance;
         entity.HandFeel = dto.HandFeel;
         entity.TestDate = dto.TestDate;
-        entity.TestedBy = dto.TestedBy;
+        entity.TestedByUserId = dto.TestedByUserId;
         entity.TestResult = dto.TestResult;
         entity.ApprovedForExport = dto.ApprovedForExport;
         entity.ReportLink = dto.ReportLink;
@@ -225,7 +223,7 @@ public class MillTestService : IMillTestService
         if (pageSize > 100) pageSize = 100;
 
         var query = _context.MillTests
-            .Include(m => m.FabricPO)
+            .Include(m => m.FabricPO).ThenInclude(p => p.Supplier)
             .Include(m => m.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(m => m.Active);
@@ -235,8 +233,8 @@ public class MillTestService : IMillTestService
             var searchTerm = search.Trim();
             query = query.Where(m =>
                 (m.LotNumber != null && m.LotNumber.Contains(searchTerm)) ||
-                (m.Supplier != null && m.Supplier.Contains(searchTerm)) ||
-                (m.TestedBy != null && m.TestedBy.Contains(searchTerm)) ||
+                (m.FabricPO != null && m.FabricPO.Supplier != null && m.FabricPO.Supplier.Name.Contains(searchTerm)) ||
+                (m.TestedBy != null && m.TestedBy.UserName.Contains(searchTerm)) ||
                 (m.FabricPO != null && m.FabricPO.FabricPONumber.Contains(searchTerm)) ||
                 (m.FGPO != null && m.FGPO.FGPONumber.Contains(searchTerm)));
         }
@@ -264,14 +262,14 @@ public class MillTestService : IMillTestService
         {
             ("lotnumber", false) => query.OrderBy(m => m.LotNumber),
             ("lotnumber", true) => query.OrderByDescending(m => m.LotNumber),
-            ("supplier", false) => query.OrderBy(m => m.Supplier),
-            ("supplier", true) => query.OrderByDescending(m => m.Supplier),
+            ("supplier", false) => query.OrderBy(m => m.FabricPO != null && m.FabricPO.Supplier != null ? m.FabricPO.Supplier.Name : null),
+            ("supplier", true) => query.OrderByDescending(m => m.FabricPO != null && m.FabricPO.Supplier != null ? m.FabricPO.Supplier.Name : null),
             ("testdate", false) => query.OrderBy(m => m.TestDate),
             ("testdate", true) => query.OrderByDescending(m => m.TestDate),
             ("testresult", false) => query.OrderBy(m => m.TestResult),
             ("testresult", true) => query.OrderByDescending(m => m.TestResult),
-            ("testedby", false) => query.OrderBy(m => m.TestedBy),
-            ("testedby", true) => query.OrderByDescending(m => m.TestedBy),
+            ("testedby", false) => query.OrderBy(m => m.TestedBy != null ? m.TestedBy.UserName : null),
+            ("testedby", true) => query.OrderByDescending(m => m.TestedBy != null ? m.TestedBy.UserName : null),
             ("createdat", false) => query.OrderBy(m => m.CreatedAt),
             ("createdat", true) => query.OrderByDescending(m => m.CreatedAt),
             _ => query.OrderByDescending(m => m.CreatedAt),
@@ -332,7 +330,7 @@ public class MillTestService : IMillTestService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
+            Supplier = item.FabricPO?.Supplier?.Name,
             LotNumber = item.LotNumber,
             LotId = item.LotId,
             Color = item.Color,
@@ -348,7 +346,7 @@ public class MillTestService : IMillTestService
             WashAppearance = item.WashAppearance,
             HandFeel = item.HandFeel,
             TestDate = item.TestDate,
-            TestedBy = item.TestedBy,
+            TestedBy = item.TestedBy?.UserName,
             TestResult = item.TestResult,
             ApprovedForExport = item.ApprovedForExport,
             ReportLink = item.ReportLink,

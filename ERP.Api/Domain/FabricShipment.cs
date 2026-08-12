@@ -7,7 +7,9 @@ public class FabricShipment : BaseEntity
     public FabricPO? FabricPO { get; set; }
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
-    public string? Supplier { get; set; }
+
+    // Proveedor: derivado de FabricPO.SupplierId → se obtiene por JOIN
+
     public string? LotNumber { get; set; }
     public int? LotId { get; set; }
     public Lot? Lot { get; set; }
@@ -25,6 +27,10 @@ public class FabricShipment : BaseEntity
     public DateTime? DeliveredToTexnicaDate { get; set; }
     public decimal InTransitQuantity { get; set; }
     public decimal RemainingToDeliver { get; set; }
-    public string? DataOwner { get; set; }
+
+    // Dueño del dato: FK a Users (usuario logueado)
+    public int? DataOwnerId { get; set; }
+    public User? DataOwner { get; set; }
+
     public string? Remarks { get; set; }
 }

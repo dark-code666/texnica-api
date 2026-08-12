@@ -18,7 +18,7 @@ public class CreateFourPointDto
     public int AcceptedQty { get; set; }
     public int RejectedQty { get; set; }
     public int HoldQty { get; set; }
-    public string? Inspector { get; set; }
+    public int? InspectorId { get; set; }
     public string? ReportLink { get; set; }
     public string? Comments { get; set; }
 }

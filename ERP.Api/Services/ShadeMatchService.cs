@@ -162,7 +162,7 @@ public class ShadeMatchService : IShadeMatchService
                 (s.BodyShadeGroup != null && s.BodyShadeGroup.Contains(term)) ||
                 (s.OverallResult != null && s.OverallResult.Contains(term)) ||
                 (s.FGPO != null && s.FGPO.FGPONumber.Contains(term)) ||
-                (s.FGPO != null && s.FGPO.Style != null && s.FGPO.Style.Contains(term)));
+                (s.FGPO != null && s.FGPO.FgpoLines != null && s.FGPO.FgpoLines.Any(l => l.Style != null && l.Style.StyleCode.Contains(term))));
         }
 
         if (!string.IsNullOrWhiteSpace(fgpo))
@@ -226,8 +226,8 @@ public class ShadeMatchService : IShadeMatchService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Style = item.FGPO?.Style,
-            Color = item.FGPO?.Color,
+            Style = item.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Style?.StyleCode,
+            Color = item.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName,
             BodyFabricLot = item.BodyFabricLot,
             RibLot = item.RibLot,
             ShoulderTapeLot = item.ShoulderTapeLot,

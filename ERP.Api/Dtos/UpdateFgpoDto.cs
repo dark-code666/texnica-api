@@ -14,6 +14,6 @@ public class UpdateFgpoDto
     public decimal ReceivedQty { get; set; }
     public decimal TotalShippedQty { get; set; }
     public decimal ProducedQty { get; set; }
-    public string? DataOwner { get; set; }
+    public int? DataOwnerId { get; set; }
     public string? Remarks { get; set; }
 }

@@ -6,7 +6,9 @@ public class MillTest : BaseEntity
     public FabricPO? FabricPO { get; set; }
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
-    public string? Supplier { get; set; }
+
+    // Proveedor: derivado de FabricPO.SupplierId → se obtiene por JOIN
+
     public string? LotNumber { get; set; }
     public int? LotId { get; set; }
     public Lot? Lot { get; set; }
@@ -23,7 +25,11 @@ public class MillTest : BaseEntity
     public string? WashAppearance { get; set; }
     public string? HandFeel { get; set; }
     public DateTime TestDate { get; set; }
-    public string? TestedBy { get; set; }
+
+    // Testeado por: FK a Users (usuario logueado)
+    public int? TestedByUserId { get; set; }
+    public User? TestedBy { get; set; }
+
     public string? TestResult { get; set; }
     public bool ApprovedForExport { get; set; }
     public string? ReportLink { get; set; }

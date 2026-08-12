@@ -9,7 +9,9 @@ public class FabricReceiving : BaseEntity
     public FabricPO? FabricPO { get; set; }
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
-    public string? Supplier { get; set; }
+
+    // Proveedor: derivado de FabricPO.SupplierId → se obtiene por JOIN
+
     public decimal PackingListQty { get; set; }
     public decimal ActualReceivedQty { get; set; }
     public decimal ReceivingVariance { get; set; }
@@ -20,7 +22,14 @@ public class FabricReceiving : BaseEntity
     public int MissingRolls { get; set; }
     public string? ReceivingStatus { get; set; }
     public string? WarehouseLocation { get; set; }
-    public string? ReceivedBy { get; set; }
-    public string? DataOwner { get; set; }
+
+    // Recibido por: FK a Users (usuario logueado)
+    public int? ReceivedByUserId { get; set; }
+    public User? ReceivedBy { get; set; }
+
+    // Dueño del dato: FK a Users (usuario logueado)
+    public int? DataOwnerId { get; set; }
+    public User? DataOwner { get; set; }
+
     public string? Remarks { get; set; }
 }

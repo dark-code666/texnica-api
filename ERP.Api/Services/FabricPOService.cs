@@ -70,7 +70,7 @@ public class FabricPOService : IFabricPOService
 
     public async Task<FabricPODto> CreateAsync(CreateFabricPODto dto)
     {
-        Validate(dto.FabricPONumber, dto.FgpoItems, dto.FabricComponent, dto.UOM, dto.OrderedQuantity, dto.UnitPrice, dto.OrderDate, dto.RequiredCompletion, dto.POStatus);
+        Validate(dto.FabricPONumber, dto.FgpoItems, dto.UOM, dto.OrderedQuantity, dto.UnitPrice, dto.OrderDate, dto.RequiredCompletion, dto.POStatus);
 
         // Validar que el número de Fabric PO sea único
         var exists = await _context.FabricPOs
@@ -95,9 +95,9 @@ public class FabricPOService : IFabricPOService
         var entity = new FabricPO
         {
             FabricPONumber = dto.FabricPONumber,
-            Supplier = dto.Supplier,
+            SupplierId = dto.SupplierId,
             FabricMill = dto.FabricMill,
-            FabricComponent = dto.FabricComponent,
+            ComponentId = dto.ComponentId,
             OrderedQuantity = dto.OrderedQuantity,
             UOM = dto.UOM,
             UnitPrice = dto.UnitPrice,
@@ -107,8 +107,8 @@ public class FabricPOService : IFabricPOService
             PlannedExport = dto.PlannedExport,
             PlannedArrival = dto.PlannedArrival,
             POStatus = dto.POStatus,
-            PurchaseOwner = dto.PurchaseOwner,
-            ApprovedBy = dto.ApprovedBy,
+            PurchaseOwnerUserId = dto.PurchaseOwnerUserId,
+            ApprovedByUserId = dto.ApprovedByUserId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -145,7 +145,7 @@ public class FabricPOService : IFabricPOService
             return false;
         }
 
-        Validate(dto.FabricPONumber, dto.FgpoItems, dto.FabricComponent, dto.UOM, dto.OrderedQuantity, dto.UnitPrice, dto.OrderDate, dto.RequiredCompletion, dto.POStatus);
+        Validate(dto.FabricPONumber, dto.FgpoItems, dto.UOM, dto.OrderedQuantity, dto.UnitPrice, dto.OrderDate, dto.RequiredCompletion, dto.POStatus);
 
         // Validar que el número de Fabric PO sea único (excluyendo el registro actual)
         var exists = await _context.FabricPOs
@@ -168,9 +168,9 @@ public class FabricPOService : IFabricPOService
         var poAmount = dto.OrderedQuantity * dto.UnitPrice;
 
         entity.FabricPONumber = dto.FabricPONumber;
-        entity.Supplier = dto.Supplier;
+        entity.SupplierId = dto.SupplierId;
         entity.FabricMill = dto.FabricMill;
-        entity.FabricComponent = dto.FabricComponent;
+        entity.ComponentId = dto.ComponentId;
         entity.OrderedQuantity = dto.OrderedQuantity;
         entity.UOM = dto.UOM;
         entity.UnitPrice = dto.UnitPrice;
@@ -180,8 +180,8 @@ public class FabricPOService : IFabricPOService
         entity.PlannedExport = dto.PlannedExport;
         entity.PlannedArrival = dto.PlannedArrival;
         entity.POStatus = dto.POStatus;
-        entity.PurchaseOwner = dto.PurchaseOwner;
-        entity.ApprovedBy = dto.ApprovedBy;
+        entity.PurchaseOwnerUserId = dto.PurchaseOwnerUserId;
+        entity.ApprovedByUserId = dto.ApprovedByUserId;
         entity.Remarks = dto.Remarks;
         entity.LastUpdated = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -234,6 +234,10 @@ public class FabricPOService : IFabricPOService
         if (pageSize > 100) pageSize = 100;
 
         var query = _context.FabricPOs
+            .Include(p => p.Supplier)
+            .Include(p => p.Component)
+            .Include(p => p.PurchaseOwner)
+            .Include(p => p.ApprovedBy)
             .Include(p => p.FabricPOFgpos)
                 .ThenInclude(pf => pf.FGPO)
                     .ThenInclude(f => f!.Customer)
@@ -245,10 +249,10 @@ public class FabricPOService : IFabricPOService
             var searchTerm = search.Trim();
             query = query.Where(p =>
                 p.FabricPONumber.Contains(searchTerm) ||
-                (p.Supplier != null && p.Supplier.Contains(searchTerm)) ||
+                (p.Supplier != null && p.Supplier.Name.Contains(searchTerm)) ||
                 (p.FabricMill != null && p.FabricMill.Contains(searchTerm)) ||
-                (p.FabricComponent != null && p.FabricComponent.Contains(searchTerm)) ||
-                (p.PurchaseOwner != null && p.PurchaseOwner.Contains(searchTerm)) ||
+                (p.Component != null && p.Component.ComponentCode.Contains(searchTerm)) ||
+                (p.PurchaseOwner != null && p.PurchaseOwner.UserName.Contains(searchTerm)) ||
                 p.FabricPOFgpos.Any(pf =>
                     (pf.Style != null && pf.Style.Contains(searchTerm)) ||
                     (pf.Color != null && pf.Color.Contains(searchTerm))));
@@ -262,7 +266,7 @@ public class FabricPOService : IFabricPOService
 
         if (!string.IsNullOrWhiteSpace(supplier))
         {
-            query = query.Where(p => p.Supplier != null && p.Supplier.Contains(supplier.Trim()));
+            query = query.Where(p => p.Supplier != null && p.Supplier.Name.Contains(supplier.Trim()));
         }
 
         if (!string.IsNullOrWhiteSpace(fabricMill))
@@ -272,7 +276,7 @@ public class FabricPOService : IFabricPOService
 
         if (!string.IsNullOrWhiteSpace(fabricComponent))
         {
-            query = query.Where(p => p.FabricComponent != null && p.FabricComponent.Contains(fabricComponent.Trim()));
+            query = query.Where(p => p.Component != null && p.Component.ComponentCode.Contains(fabricComponent.Trim()));
         }
 
         if (!string.IsNullOrWhiteSpace(poStatus))
@@ -280,7 +284,7 @@ public class FabricPOService : IFabricPOService
             query = query.Where(p => p.POStatus == poStatus);
         }
 
-        // Total de registros (sin ordenamiento para evitar errores de traducción SQL)
+        // Total de registros
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
@@ -293,12 +297,12 @@ public class FabricPOService : IFabricPOService
         {
             ("fabricponumber", false) => query.OrderBy(p => p.FabricPONumber),
             ("fabricponumber", true) => query.OrderByDescending(p => p.FabricPONumber),
-            ("supplier", false) => query.OrderBy(p => p.Supplier),
-            ("supplier", true) => query.OrderByDescending(p => p.Supplier),
+            ("supplier", false) => query.OrderBy(p => p.Supplier != null ? p.Supplier.Name : null),
+            ("supplier", true) => query.OrderByDescending(p => p.Supplier != null ? p.Supplier.Name : null),
             ("fabricmill", false) => query.OrderBy(p => p.FabricMill),
             ("fabricmill", true) => query.OrderByDescending(p => p.FabricMill),
-            ("fabriccomponent", false) => query.OrderBy(p => p.FabricComponent),
-            ("fabriccomponent", true) => query.OrderByDescending(p => p.FabricComponent),
+            ("fabriccomponent", false) => query.OrderBy(p => p.Component != null ? p.Component.ComponentCode : null),
+            ("fabriccomponent", true) => query.OrderByDescending(p => p.Component != null ? p.Component.ComponentCode : null),
             ("orderedquantity", false) => query.OrderBy(p => p.OrderedQuantity),
             ("orderedquantity", true) => query.OrderByDescending(p => p.OrderedQuantity),
             ("unitprice", false) => query.OrderBy(p => p.UnitPrice),
@@ -331,19 +335,13 @@ public class FabricPOService : IFabricPOService
         };
     }
 
-    private static void Validate(string fabricPONumber, List<FabricPOFgpoItemDto> fgpoItems, string? fabricComponent, string? uom, decimal orderedQuantity, decimal unitPrice, DateTime orderDate, DateTime requiredCompletion, string? poStatus)
+    private static void Validate(string fabricPONumber, List<FabricPOFgpoItemDto> fgpoItems, string? uom, decimal orderedQuantity, decimal unitPrice, DateTime orderDate, DateTime requiredCompletion, string? poStatus)
     {
         if (string.IsNullOrWhiteSpace(fabricPONumber))
             throw new Exception("El Fabric PO Number es obligatorio.");
 
         if (fgpoItems == null || fgpoItems.Count == 0)
             throw new Exception("Debe seleccionar al menos un FGPO.");
-
-        if (string.IsNullOrWhiteSpace(fabricComponent))
-            throw new Exception("El Fabric Component es obligatorio.");
-
-        if (!ValidFabricComponents.Contains(fabricComponent, StringComparer.OrdinalIgnoreCase))
-            throw new Exception($"El Fabric Component '{fabricComponent}' no es válido.");
 
         if (string.IsNullOrWhiteSpace(uom))
             throw new Exception("El UOM es obligatorio.");
@@ -416,9 +414,11 @@ public class FabricPOService : IFabricPOService
                     AllocatedQuantity = pf.AllocatedQuantity,
                 })
                 .ToList(),
-            Supplier = item.Supplier,
+            SupplierId = item.SupplierId,
+            SupplierName = item.Supplier?.Name,
             FabricMill = item.FabricMill,
-            FabricComponent = item.FabricComponent,
+            ComponentId = item.ComponentId,
+            ComponentCode = item.Component?.ComponentCode,
             OrderedQuantity = item.OrderedQuantity,
             UOM = item.UOM,
             UnitPrice = item.UnitPrice,
@@ -428,8 +428,10 @@ public class FabricPOService : IFabricPOService
             PlannedExport = item.PlannedExport,
             PlannedArrival = item.PlannedArrival,
             POStatus = item.POStatus,
-            PurchaseOwner = item.PurchaseOwner,
-            ApprovedBy = item.ApprovedBy,
+            PurchaseOwnerUserId = item.PurchaseOwnerUserId,
+            PurchaseOwnerName = item.PurchaseOwner?.UserName,
+            ApprovedByUserId = item.ApprovedByUserId,
+            ApprovedByName = item.ApprovedBy?.UserName,
             LastUpdated = item.LastUpdated,
             Remarks = item.Remarks,
             Active = item.Active,

@@ -24,8 +24,11 @@ public class FabricReceivingService : IFabricReceivingService
     {
         var items = await _context.FabricReceivings
             .Include(r => r.FabricPO)
+                .ThenInclude(po => po!.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(r => r.ReceivedBy)
+            .Include(r => r.DataOwner)
             .Where(r => r.Active)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -37,8 +40,11 @@ public class FabricReceivingService : IFabricReceivingService
     {
         var item = await _context.FabricReceivings
             .Include(r => r.FabricPO)
+                .ThenInclude(po => po!.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(r => r.ReceivedBy)
+            .Include(r => r.DataOwner)
             .FirstOrDefaultAsync(r => r.ID == id && r.Active);
 
         return item is null ? null : ToDto(item);
@@ -48,8 +54,11 @@ public class FabricReceivingService : IFabricReceivingService
     {
         var items = await _context.FabricReceivings
             .Include(r => r.FabricPO)
+                .ThenInclude(po => po!.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(r => r.ReceivedBy)
+            .Include(r => r.DataOwner)
             .Where(r => r.Active && r.FabricPOId == fabricPOId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -61,8 +70,11 @@ public class FabricReceivingService : IFabricReceivingService
     {
         var items = await _context.FabricReceivings
             .Include(r => r.FabricPO)
+                .ThenInclude(po => po!.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(r => r.ReceivedBy)
+            .Include(r => r.DataOwner)
             .Where(r => r.Active && r.FGPOId == fgpoId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -96,15 +108,14 @@ public class FabricReceivingService : IFabricReceivingService
             ShipmentNumber = dto.ShipmentNumber,
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
-            Supplier = dto.Supplier,
             PackingListQty = dto.PackingListQty,
             ActualReceivedQty = dto.ActualReceivedQty,
             ExpectedRolls = dto.ExpectedRolls,
             ReceivedRolls = dto.ReceivedRolls,
             ReceivingStatus = dto.ReceivingStatus,
             WarehouseLocation = dto.WarehouseLocation,
-            ReceivedBy = dto.ReceivedBy,
-            DataOwner = dto.DataOwner,
+            ReceivedByUserId = dto.ReceivedByUserId,
+            DataOwnerId = dto.DataOwnerId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -113,9 +124,12 @@ public class FabricReceivingService : IFabricReceivingService
         _context.FabricReceivings.Add(entity);
         await _context.SaveChangesAsync();
 
-        await _context.Entry(entity).Reference(r => r.FabricPO).LoadAsync();
+        await _context.Entry(entity).Reference(r => r.FabricPO).Query()
+            .Include(po => po!.Supplier).LoadAsync();
         await _context.Entry(entity).Reference(r => r.FGPO).Query()
             .Include(f => f!.Customer).LoadAsync();
+        await _context.Entry(entity).Reference(r => r.ReceivedBy).LoadAsync();
+        await _context.Entry(entity).Reference(r => r.DataOwner).LoadAsync();
 
         return ToDto(entity);
     }
@@ -150,15 +164,14 @@ public class FabricReceivingService : IFabricReceivingService
         entity.ShipmentNumber = dto.ShipmentNumber;
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
-        entity.Supplier = dto.Supplier;
         entity.PackingListQty = dto.PackingListQty;
         entity.ActualReceivedQty = dto.ActualReceivedQty;
         entity.ExpectedRolls = dto.ExpectedRolls;
         entity.ReceivedRolls = dto.ReceivedRolls;
         entity.ReceivingStatus = dto.ReceivingStatus;
         entity.WarehouseLocation = dto.WarehouseLocation;
-        entity.ReceivedBy = dto.ReceivedBy;
-        entity.DataOwner = dto.DataOwner;
+        entity.ReceivedByUserId = dto.ReceivedByUserId;
+        entity.DataOwnerId = dto.DataOwnerId;
         entity.Remarks = dto.Remarks;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -193,8 +206,11 @@ public class FabricReceivingService : IFabricReceivingService
 
         var query = _context.FabricReceivings
             .Include(r => r.FabricPO)
+                .ThenInclude(po => po!.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(r => r.ReceivedBy)
+            .Include(r => r.DataOwner)
             .Where(r => r.Active);
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -203,8 +219,8 @@ public class FabricReceivingService : IFabricReceivingService
             query = query.Where(r =>
                 r.ReceivingNumber.Contains(searchTerm) ||
                 (r.ShipmentNumber != null && r.ShipmentNumber.Contains(searchTerm)) ||
-                (r.Supplier != null && r.Supplier.Contains(searchTerm)) ||
-                (r.ReceivedBy != null && r.ReceivedBy.Contains(searchTerm)) ||
+                (r.FabricPO != null && r.FabricPO.Supplier != null && r.FabricPO.Supplier.Name.Contains(searchTerm)) ||
+                (r.ReceivedBy != null && r.ReceivedBy.UserName.Contains(searchTerm)) ||
                 (r.WarehouseLocation != null && r.WarehouseLocation.Contains(searchTerm)) ||
                 (r.FabricPO != null && r.FabricPO.FabricPONumber.Contains(searchTerm)) ||
                 (r.FGPO != null && r.FGPO.FGPONumber.Contains(searchTerm)));
@@ -232,8 +248,8 @@ public class FabricReceivingService : IFabricReceivingService
             ("receivingnumber", true) => query.OrderByDescending(r => r.ReceivingNumber),
             ("shipmentnumber", false) => query.OrderBy(r => r.ShipmentNumber),
             ("shipmentnumber", true) => query.OrderByDescending(r => r.ShipmentNumber),
-            ("supplier", false) => query.OrderBy(r => r.Supplier),
-            ("supplier", true) => query.OrderByDescending(r => r.Supplier),
+            ("supplier", false) => query.OrderBy(r => r.FabricPO!.Supplier!.Name),
+            ("supplier", true) => query.OrderByDescending(r => r.FabricPO!.Supplier!.Name),
             ("receivingdate", false) => query.OrderBy(r => r.ReceivingDate),
             ("receivingdate", true) => query.OrderByDescending(r => r.ReceivingDate),
             ("actualreceivedqty", false) => query.OrderBy(r => r.ActualReceivedQty),
@@ -303,7 +319,7 @@ public class FabricReceivingService : IFabricReceivingService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
+            SupplierName = item.FabricPO?.Supplier?.Name,
             PackingListQty = item.PackingListQty,
             ActualReceivedQty = item.ActualReceivedQty,
             ReceivingVariance = item.ReceivingVariance,
@@ -314,8 +330,10 @@ public class FabricReceivingService : IFabricReceivingService
             MissingRolls = item.MissingRolls,
             ReceivingStatus = item.ReceivingStatus,
             WarehouseLocation = item.WarehouseLocation,
-            ReceivedBy = item.ReceivedBy,
-            DataOwner = item.DataOwner,
+            ReceivedByUserId = item.ReceivedByUserId,
+            ReceivedByName = item.ReceivedBy?.UserName,
+            DataOwnerId = item.DataOwnerId,
+            DataOwnerName = item.DataOwner?.UserName,
             Remarks = item.Remarks,
             Active = item.Active,
             CreatedAt = item.CreatedAt,

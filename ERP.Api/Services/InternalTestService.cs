@@ -83,7 +83,6 @@ public class InternalTestService : IInternalTestService
             TestDate = dto.TestDate,
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
-            Supplier = dto.Supplier,
             LotNumber = dto.LotNumber,
             LotId = lot?.ID,
             Color = dto.Color,
@@ -103,8 +102,8 @@ public class InternalTestService : IInternalTestService
             WashAppearance = dto.WashAppearance,
             HandFeel = dto.HandFeel,
             TestResult = dto.TestResult,
-            TestedBy = dto.TestedBy,
-            ApprovedBy = dto.ApprovedBy,
+            TestedByUserId = dto.TestedByUserId,
+            ApprovedByUserId = dto.ApprovedByUserId,
             ReportLink = dto.ReportLink,
             Comments = dto.Comments,
             Active = true,
@@ -142,7 +141,6 @@ public class InternalTestService : IInternalTestService
         entity.TestDate = dto.TestDate;
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
-        entity.Supplier = dto.Supplier;
         entity.LotNumber = dto.LotNumber;
         entity.LotId = lot?.ID;
         entity.Color = dto.Color;
@@ -162,8 +160,8 @@ public class InternalTestService : IInternalTestService
         entity.WashAppearance = dto.WashAppearance;
         entity.HandFeel = dto.HandFeel;
         entity.TestResult = dto.TestResult;
-        entity.TestedBy = dto.TestedBy;
-        entity.ApprovedBy = dto.ApprovedBy;
+        entity.TestedByUserId = dto.TestedByUserId;
+        entity.ApprovedByUserId = dto.ApprovedByUserId;
         entity.ReportLink = dto.ReportLink;
         entity.Comments = dto.Comments;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -196,7 +194,7 @@ public class InternalTestService : IInternalTestService
         if (pageSize > 100) pageSize = 100;
 
         var query = _context.InternalTests
-            .Include(t => t.FabricPO)
+            .Include(t => t.FabricPO).ThenInclude(p => p.Supplier)
             .Include(t => t.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(t => t.Active);
@@ -207,7 +205,8 @@ public class InternalTestService : IInternalTestService
             query = query.Where(t =>
                 (t.LotNumber != null && t.LotNumber.Contains(term)) ||
                 (t.Color != null && t.Color.Contains(term)) ||
-                (t.TestedBy != null && t.TestedBy.Contains(term)) ||
+                (t.FabricPO != null && t.FabricPO.Supplier != null && t.FabricPO.Supplier.Name.Contains(term)) ||
+                (t.TestedBy != null && t.TestedBy.UserName.Contains(term)) ||
                 (t.TestResult != null && t.TestResult.Contains(term)) ||
                 (t.FabricPO != null && t.FabricPO.FabricPONumber.Contains(term)) ||
                 (t.FGPO != null && t.FGPO.FGPONumber.Contains(term)));
@@ -332,7 +331,7 @@ public class InternalTestService : IInternalTestService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
+            Supplier = item.FabricPO?.Supplier?.Name,
             LotNumber = item.LotNumber,
             LotId = item.LotId,
             Color = item.Color,
@@ -357,8 +356,8 @@ public class InternalTestService : IInternalTestService
             WashAppearance = item.WashAppearance,
             HandFeel = item.HandFeel,
             TestResult = item.TestResult,
-            TestedBy = item.TestedBy,
-            ApprovedBy = item.ApprovedBy,
+            TestedBy = item.TestedBy?.UserName,
+            ApprovedBy = item.ApprovedBy?.UserName,
             ReportLink = item.ReportLink,
             Comments = item.Comments,
             Active = item.Active,

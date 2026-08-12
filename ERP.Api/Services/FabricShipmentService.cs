@@ -117,7 +117,6 @@ public class FabricShipmentService : IFabricShipmentService
             ShipmentNumber = dto.ShipmentNumber,
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
-            Supplier = dto.Supplier,
             LotNumber = dto.LotNumber,
             LotId = lot?.ID,
             RollQty = dto.RollQty,
@@ -132,7 +131,7 @@ public class FabricShipmentService : IFabricShipmentService
             ETA = dto.ETA,
             ShipmentStatus = dto.ShipmentStatus,
             DeliveredToTexnicaDate = dto.DeliveredToTexnicaDate,
-            DataOwner = dto.DataOwner,
+            DataOwnerId = dto.DataOwnerId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -178,7 +177,6 @@ public class FabricShipmentService : IFabricShipmentService
         entity.ShipmentNumber = dto.ShipmentNumber;
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
-        entity.Supplier = dto.Supplier;
         entity.LotNumber = dto.LotNumber;
         entity.LotId = lot?.ID;
         entity.RollQty = dto.RollQty;
@@ -193,7 +191,7 @@ public class FabricShipmentService : IFabricShipmentService
         entity.ETA = dto.ETA;
         entity.ShipmentStatus = dto.ShipmentStatus;
         entity.DeliveredToTexnicaDate = dto.DeliveredToTexnicaDate;
-        entity.DataOwner = dto.DataOwner;
+        entity.DataOwnerId = dto.DataOwnerId;
         entity.Remarks = dto.Remarks;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -250,7 +248,7 @@ public class FabricShipmentService : IFabricShipmentService
         if (pageSize > 100) pageSize = 100;
 
         var query = _context.FabricShipments
-            .Include(s => s.FabricPO)
+            .Include(s => s.FabricPO).ThenInclude(p => p.Supplier)
             .Include(s => s.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(s => s.Active);
@@ -261,7 +259,7 @@ public class FabricShipmentService : IFabricShipmentService
             query = query.Where(s =>
                 s.ShipmentNumber.Contains(searchTerm) ||
                 (s.LotNumber != null && s.LotNumber.Contains(searchTerm)) ||
-                (s.Supplier != null && s.Supplier.Contains(searchTerm)) ||
+                (s.FabricPO != null && s.FabricPO.Supplier != null && s.FabricPO.Supplier.Name.Contains(searchTerm)) ||
                 (s.InvoiceNumber != null && s.InvoiceNumber.Contains(searchTerm)) ||
                 (s.ContainerAWB != null && s.ContainerAWB.Contains(searchTerm)) ||
                 (s.FabricPO != null && s.FabricPO.FabricPONumber.Contains(searchTerm)) ||
@@ -293,8 +291,8 @@ public class FabricShipmentService : IFabricShipmentService
             ("shipmentnumber", true) => query.OrderByDescending(s => s.ShipmentNumber),
             ("lotnumber", false) => query.OrderBy(s => s.LotNumber),
             ("lotnumber", true) => query.OrderByDescending(s => s.LotNumber),
-            ("supplier", false) => query.OrderBy(s => s.Supplier),
-            ("supplier", true) => query.OrderByDescending(s => s.Supplier),
+            ("supplier", false) => query.OrderBy(s => s.FabricPO != null && s.FabricPO.Supplier != null ? s.FabricPO.Supplier.Name : null),
+            ("supplier", true) => query.OrderByDescending(s => s.FabricPO != null && s.FabricPO.Supplier != null ? s.FabricPO.Supplier.Name : null),
             ("shippedquantity", false) => query.OrderBy(s => s.ShippedQuantity),
             ("shippedquantity", true) => query.OrderByDescending(s => s.ShippedQuantity),
             ("etd", false) => query.OrderBy(s => s.ETD),
@@ -370,7 +368,7 @@ public class FabricShipmentService : IFabricShipmentService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
+            Supplier = item.FabricPO?.Supplier?.Name,
             LotNumber = item.LotNumber,
             LotId = item.LotId,
             RollQty = item.RollQty,
@@ -387,7 +385,7 @@ public class FabricShipmentService : IFabricShipmentService
             DeliveredToTexnicaDate = item.DeliveredToTexnicaDate,
             InTransitQuantity = item.InTransitQuantity,
             RemainingToDeliver = item.RemainingToDeliver,
-            DataOwner = item.DataOwner,
+            DataOwner = item.DataOwner?.UserName,
             Remarks = item.Remarks,
             Active = item.Active,
             CreatedAt = item.CreatedAt,

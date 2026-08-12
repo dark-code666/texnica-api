@@ -30,6 +30,8 @@ public class FabricRequirementService : IFabricRequirementService
         var items = await _context.FabricRequirements
             .Include(f => f.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(f => f.Component)
+            .Include(f => f.DataOwner)
             .Where(f => f.Active)
             .OrderByDescending(f => f.CreatedAt)
             .ToListAsync();
@@ -42,6 +44,8 @@ public class FabricRequirementService : IFabricRequirementService
         var item = await _context.FabricRequirements
             .Include(f => f.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(f => f.Component)
+            .Include(f => f.DataOwner)
             .FirstOrDefaultAsync(f => f.ID == id && f.Active);
 
         return item is null ? null : ToDto(item);
@@ -52,6 +56,8 @@ public class FabricRequirementService : IFabricRequirementService
         var items = await _context.FabricRequirements
             .Include(f => f.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(f => f.Component)
+            .Include(f => f.DataOwner)
             .Where(f => f.FGPOId == fgpoId && f.Active)
             .OrderBy(f => f.CreatedAt)
             .ToListAsync();
@@ -61,7 +67,7 @@ public class FabricRequirementService : IFabricRequirementService
 
     public async Task<FabricRequirementDto> CreateAsync(CreateFabricRequirementDto dto)
     {
-        Validate(dto.FGPOId, dto.FabricComponent, dto.UOM, dto.OrderQuantity, dto.ApprovedYield, dto.AllowancePercentage, dto.RequiredDate);
+        Validate(dto.FGPOId, dto.UOM, dto.OrderQuantity, dto.ApprovedYield, dto.AllowancePercentage, dto.RequiredDate);
 
         // Validar que la FGPO exista y esté activa
         var fgpo = await _context.Fgpos
@@ -79,7 +85,7 @@ public class FabricRequirementService : IFabricRequirementService
             FGPOId = dto.FGPOId,
             Style = dto.Style,
             Color = dto.Color,
-            FabricComponent = dto.FabricComponent,
+            ComponentId = dto.ComponentId,
             FabricDescription = dto.FabricDescription,
             Composition = dto.Composition,
             GSM = dto.GSM,
@@ -94,7 +100,7 @@ public class FabricRequirementService : IFabricRequirementService
             NetPurchaseRequirement = netPurchaseRequirement,
             RequiredDate = dto.RequiredDate,
             Status = dto.Status,
-            DataOwner = dto.DataOwner,
+            DataOwnerId = dto.DataOwnerId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -106,6 +112,8 @@ public class FabricRequirementService : IFabricRequirementService
         // Cargar las relaciones para devolver los nombres
         await _context.Entry(entity).Reference(f => f.FGPO).LoadAsync();
         await _context.Entry(entity).Reference(f => f.FGPO).Query().Include(f => f!.Customer).LoadAsync();
+        await _context.Entry(entity).Reference(f => f.Component).LoadAsync();
+        await _context.Entry(entity).Reference(f => f.DataOwner).LoadAsync();
 
         return ToDto(entity);
     }
@@ -120,7 +128,7 @@ public class FabricRequirementService : IFabricRequirementService
             return false;
         }
 
-        Validate(dto.FGPOId, dto.FabricComponent, dto.UOM, dto.OrderQuantity, dto.ApprovedYield, dto.AllowancePercentage, dto.RequiredDate);
+        Validate(dto.FGPOId, dto.UOM, dto.OrderQuantity, dto.ApprovedYield, dto.AllowancePercentage, dto.RequiredDate);
 
         // Validar que la FGPO exista y esté activa
         var fgpo = await _context.Fgpos
@@ -136,7 +144,7 @@ public class FabricRequirementService : IFabricRequirementService
         entity.FGPOId = dto.FGPOId;
         entity.Style = dto.Style;
         entity.Color = dto.Color;
-        entity.FabricComponent = dto.FabricComponent;
+        entity.ComponentId = dto.ComponentId;
         entity.FabricDescription = dto.FabricDescription;
         entity.Composition = dto.Composition;
         entity.GSM = dto.GSM;
@@ -151,7 +159,7 @@ public class FabricRequirementService : IFabricRequirementService
         entity.NetPurchaseRequirement = netPurchaseRequirement;
         entity.RequiredDate = dto.RequiredDate;
         entity.Status = dto.Status;
-        entity.DataOwner = dto.DataOwner;
+        entity.DataOwnerId = dto.DataOwnerId;
         entity.Remarks = dto.Remarks;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -190,6 +198,8 @@ public class FabricRequirementService : IFabricRequirementService
         var query = _context.FabricRequirements
             .Include(f => f.FGPO)
                 .ThenInclude(f => f!.Customer)
+            .Include(f => f.Component)
+            .Include(f => f.DataOwner)
             .Where(f => f.Active);
 
         // Búsqueda general
@@ -199,9 +209,9 @@ public class FabricRequirementService : IFabricRequirementService
             query = query.Where(f =>
                 (f.FGPO != null && f.FGPO.FGPONumber.Contains(searchTerm)) ||
                 (f.FabricDescription != null && f.FabricDescription.Contains(searchTerm)) ||
-                (f.FabricComponent != null && f.FabricComponent.Contains(searchTerm)) ||
+                (f.Component != null && f.Component.ComponentCode.Contains(searchTerm)) ||
                 (f.Color != null && f.Color.Contains(searchTerm)) ||
-                (f.DataOwner != null && f.DataOwner.Contains(searchTerm)));
+                (f.DataOwner != null && f.DataOwner.UserName.Contains(searchTerm)));
         }
 
         // Filtros
@@ -222,7 +232,7 @@ public class FabricRequirementService : IFabricRequirementService
 
         if (!string.IsNullOrWhiteSpace(fabricComponent))
         {
-            query = query.Where(f => f.FabricComponent != null && f.FabricComponent.Contains(fabricComponent.Trim()));
+            query = query.Where(f => f.Component != null && f.Component.ComponentCode.Contains(fabricComponent.Trim()));
         }
 
         if (!string.IsNullOrWhiteSpace(status))
@@ -249,8 +259,8 @@ public class FabricRequirementService : IFabricRequirementService
             ("style", true) => query.OrderByDescending(f => f.Style),
             ("color", false) => query.OrderBy(f => f.Color),
             ("color", true) => query.OrderByDescending(f => f.Color),
-            ("fabriccomponent", false) => query.OrderBy(f => f.FabricComponent),
-            ("fabriccomponent", true) => query.OrderByDescending(f => f.FabricComponent),
+            ("fabriccomponent", false) => query.OrderBy(f => f.Component != null ? f.Component.ComponentCode : null),
+            ("fabriccomponent", true) => query.OrderByDescending(f => f.Component != null ? f.Component.ComponentCode : null),
             ("orderquantity", false) => query.OrderBy(f => f.OrderQuantity),
             ("orderquantity", true) => query.OrderByDescending(f => f.OrderQuantity),
             ("grossrequirement", false) => query.OrderBy(f => f.GrossRequirement),
@@ -281,16 +291,10 @@ public class FabricRequirementService : IFabricRequirementService
         };
     }
 
-    private static void Validate(int fgpoId, string? fabricComponent, string? uom, decimal orderQuantity, decimal approvedYield, decimal allowancePercentage, DateTime requiredDate)
+    private static void Validate(int fgpoId, string? uom, decimal orderQuantity, decimal approvedYield, decimal allowancePercentage, DateTime requiredDate)
     {
         if (fgpoId <= 0)
             throw new Exception("La FGPO es obligatoria.");
-
-        if (string.IsNullOrWhiteSpace(fabricComponent))
-            throw new Exception("El Fabric Component es obligatorio.");
-
-        if (!ValidFabricComponents.Contains(fabricComponent, StringComparer.OrdinalIgnoreCase))
-            throw new Exception($"El Fabric Component '{fabricComponent}' no es válido.");
 
         if (string.IsNullOrWhiteSpace(uom))
             throw new Exception("El UOM es obligatorio.");
@@ -321,7 +325,8 @@ public class FabricRequirementService : IFabricRequirementService
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
             Style = item.Style,
             Color = item.Color,
-            FabricComponent = item.FabricComponent,
+            ComponentId = item.ComponentId,
+            ComponentCode = item.Component?.ComponentCode,
             FabricDescription = item.FabricDescription,
             Composition = item.Composition,
             GSM = item.GSM,
@@ -336,7 +341,8 @@ public class FabricRequirementService : IFabricRequirementService
             NetPurchaseRequirement = item.NetPurchaseRequirement,
             RequiredDate = item.RequiredDate,
             Status = item.Status,
-            DataOwner = item.DataOwner,
+            DataOwnerId = item.DataOwnerId,
+            DataOwnerName = item.DataOwner?.UserName,
             Remarks = item.Remarks,
             Active = item.Active,
             CreatedAt = item.CreatedAt,

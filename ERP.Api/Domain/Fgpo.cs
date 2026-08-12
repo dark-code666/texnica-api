@@ -7,8 +7,10 @@ public class Fgpo : BaseEntity
     public string? Status { get; set; }
     public int CustomerId { get; set; }
     public Customer? Customer { get; set; }
-    public string? Style { get; set; }
-    public string? Color { get; set; }
+
+    // Style y Color eliminados: datos reales viven en FgpoLines (FK a Styles/Colors)
+    // Si se necesita el estilo/color "primario" del FGPO, se obtiene por JOIN a FgpoLines
+
     public int OrderQuantity { get; set; }
     public DateTime DeliveryDate { get; set; }
     public decimal InTransitQty { get; set; }
@@ -21,9 +23,16 @@ public class Fgpo : BaseEntity
     public decimal ProductionVariance { get; set; }
     public decimal PendingProduction { get; set; }
     public decimal OverproductionQty { get; set; }
-    public string? DataOwner { get; set; }
+
+    // Dueño del dato: FK a Users (usuario logueado al crear/modificar)
+    public int? DataOwnerId { get; set; }
+    public User? DataOwner { get; set; }
+
     public string? Remarks { get; set; }
 
     // Relación inversa: un FGPO puede estar cubierto por varios Fabric PO
     public ICollection<FabricPOFgpo> FabricPOFgpos { get; set; } = new List<FabricPOFgpo>();
+
+    // Relación inversa: un FGPO tiene líneas (Style + Color + Size)
+    public ICollection<FgpoLine> FgpoLines { get; set; } = new List<FgpoLine>();
 }

@@ -1,15 +1,14 @@
 namespace ERP.Api.Domain;
 
-public class FabricPOFgpo
+public class FabricPOFgpo : BaseEntity
 {
-    public int ID { get; set; }
     public int FabricPOId { get; set; }
     public FabricPO? FabricPO { get; set; }
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
 
     // Style y Color viven aquí porque cada FGPO cubierto por el mismo Fabric PO
-    // puede tener su propio estilo/color.
+    // puede tener su propio estilo/color de asignación.
     public string? Style { get; set; }
     public string? Color { get; set; }
 

@@ -3,9 +3,17 @@ namespace ERP.Api.Domain;
 public class FabricPO : BaseEntity
 {
     public string FabricPONumber { get; set; } = null!;
-    public string? Supplier { get; set; }
+
+    // Proveedor normalizado: FK a Suppliers
+    public int? SupplierId { get; set; }
+    public Supplier? Supplier { get; set; }
+
     public string? FabricMill { get; set; }
-    public string? FabricComponent { get; set; }
+
+    // Componente de tela normalizado: FK a Components
+    public int? ComponentId { get; set; }
+    public Component? Component { get; set; }
+
     public decimal OrderedQuantity { get; set; }
     public string? UOM { get; set; }
     public decimal UnitPrice { get; set; }
@@ -15,8 +23,15 @@ public class FabricPO : BaseEntity
     public DateTime? PlannedExport { get; set; }
     public DateTime? PlannedArrival { get; set; }
     public string? POStatus { get; set; }
-    public string? PurchaseOwner { get; set; }
-    public string? ApprovedBy { get; set; }
+
+    // Responsable de compra: FK a Users (usuario logueado al crear)
+    public int? PurchaseOwnerUserId { get; set; }
+    public User? PurchaseOwner { get; set; }
+
+    // Aprobado por: FK a Users
+    public int? ApprovedByUserId { get; set; }
+    public User? ApprovedBy { get; set; }
+
     public DateTime? LastUpdated { get; set; }
     public string? Remarks { get; set; }
 

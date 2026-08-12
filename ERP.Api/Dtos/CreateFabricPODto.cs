@@ -4,9 +4,9 @@ public class CreateFabricPODto
 {
     public string FabricPONumber { get; set; } = null!;
     public List<FabricPOFgpoItemDto> FgpoItems { get; set; } = new List<FabricPOFgpoItemDto>();
-    public string? Supplier { get; set; }
+    public int? SupplierId { get; set; }
     public string? FabricMill { get; set; }
-    public string? FabricComponent { get; set; }
+    public int? ComponentId { get; set; }
     public decimal OrderedQuantity { get; set; }
     public string? UOM { get; set; }
     public decimal UnitPrice { get; set; }
@@ -15,8 +15,8 @@ public class CreateFabricPODto
     public DateTime? PlannedExport { get; set; }
     public DateTime? PlannedArrival { get; set; }
     public string? POStatus { get; set; }
-    public string? PurchaseOwner { get; set; }
-    public string? ApprovedBy { get; set; }
+    public int? PurchaseOwnerUserId { get; set; }
+    public int? ApprovedByUserId { get; set; }
     public string? Remarks { get; set; }
 }
 

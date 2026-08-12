@@ -4,9 +4,16 @@ public class FabricRequirement : BaseEntity
 {
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
+
+    // Style y Color se mantienen aquí como texto descriptivo de la especificación técnica
+    // de la tela requerida (pueden diferir del FGPO general). No son relaciones.
     public string? Style { get; set; }
     public string? Color { get; set; }
-    public string? FabricComponent { get; set; }
+
+    // Componente de tela normalizado: FK a Components
+    public int? ComponentId { get; set; }
+    public Component? Component { get; set; }
+
     public string? FabricDescription { get; set; }
     public string? Composition { get; set; }
     public decimal GSM { get; set; }
@@ -21,6 +28,10 @@ public class FabricRequirement : BaseEntity
     public decimal NetPurchaseRequirement { get; set; }
     public DateTime RequiredDate { get; set; }
     public string? Status { get; set; }
-    public string? DataOwner { get; set; }
+
+    // Dueño del dato: FK a Users (usuario logueado)
+    public int? DataOwnerId { get; set; }
+    public User? DataOwner { get; set; }
+
     public string? Remarks { get; set; }
 }

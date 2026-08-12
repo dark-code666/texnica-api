@@ -83,7 +83,7 @@ public class InlineQualityService : IInlineQualityService
             MinorDefects = dto.MinorDefects,
             DefectivePieces = dto.DefectivePieces,
             MaxAllowed = dto.MaxAllowed,
-            Inspector = dto.Inspector,
+            InspectorId = dto.InspectorId,
             ImmediateCorrection = dto.ImmediateCorrection,
             RootCause = dto.RootCause,
             Active = true,
@@ -124,7 +124,7 @@ public class InlineQualityService : IInlineQualityService
         entity.MinorDefects = dto.MinorDefects;
         entity.DefectivePieces = dto.DefectivePieces;
         entity.MaxAllowed = dto.MaxAllowed;
-        entity.Inspector = dto.Inspector;
+        entity.InspectorId = dto.InspectorId;
         entity.ImmediateCorrection = dto.ImmediateCorrection;
         entity.RootCause = dto.RootCause;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -260,8 +260,8 @@ public class InlineQualityService : IInlineQualityService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Style = item.FGPO?.Style,
-            Color = item.FGPO?.Color,
+            Style = item.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Style?.StyleCode,
+            Color = item.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName,
             Operation = item.Operation,
             Operator = item.Operator,
             CheckedQty = item.CheckedQty,
@@ -274,7 +274,7 @@ public class InlineQualityService : IInlineQualityService
             DefectiveRatePct = item.DefectiveRatePct,
             MaxAllowed = item.MaxAllowed,
             Result = item.Result,
-            Inspector = item.Inspector,
+            Inspector = item.Inspector?.UserName,
             ImmediateCorrection = item.ImmediateCorrection,
             RootCause = item.RootCause,
             Active = item.Active,

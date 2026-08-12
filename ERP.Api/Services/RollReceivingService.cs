@@ -19,7 +19,7 @@ public class RollReceivingService : IRollReceivingService
     {
         var items = await _context.RollReceivings
             .Include(r => r.Receiving)
-            .Include(r => r.FabricPO)
+            .Include(r => r.FabricPO).ThenInclude(p => p.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(r => r.Active)
@@ -33,7 +33,7 @@ public class RollReceivingService : IRollReceivingService
     {
         var item = await _context.RollReceivings
             .Include(r => r.Receiving)
-            .Include(r => r.FabricPO)
+            .Include(r => r.FabricPO).ThenInclude(p => p.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
             .FirstOrDefaultAsync(r => r.ID == id && r.Active);
@@ -45,7 +45,7 @@ public class RollReceivingService : IRollReceivingService
     {
         var items = await _context.RollReceivings
             .Include(r => r.Receiving)
-            .Include(r => r.FabricPO)
+            .Include(r => r.FabricPO).ThenInclude(p => p.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(r => r.Active && r.ReceivingId == receivingId)
@@ -75,8 +75,7 @@ public class RollReceivingService : IRollReceivingService
             // Derivado del Fabric Receiving: nunca se pide ni se desincroniza
             FabricPOId = receiving.FabricPOId,
             FGPOId = receiving.FGPOId,
-            Supplier = receiving.Supplier,
-            Color = receiving.FGPO?.Color,
+            Color = receiving.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName,
             LotNumber = dto.LotNumber,
             LotId = lot?.ID,
             RollNumber = dto.RollNumber,
@@ -92,7 +91,7 @@ public class RollReceivingService : IRollReceivingService
             // Defaults desde el parent si no se envían
             WarehouseLocation = string.IsNullOrWhiteSpace(dto.WarehouseLocation) ? receiving.WarehouseLocation : dto.WarehouseLocation,
             ReceivedDate = dto.ReceivedDate == default ? receiving.ReceivingDate : dto.ReceivedDate,
-            DataOwner = string.IsNullOrWhiteSpace(dto.DataOwner) ? receiving.DataOwner : dto.DataOwner,
+            DataOwnerId = dto.DataOwnerId ?? receiving.DataOwnerId,
             Comments = dto.Comments,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -102,7 +101,7 @@ public class RollReceivingService : IRollReceivingService
         await _context.SaveChangesAsync();
 
         await _context.Entry(entity).Reference(r => r.Receiving).LoadAsync();
-        await _context.Entry(entity).Reference(r => r.FabricPO).LoadAsync();
+        await _context.Entry(entity).Reference(r => r.FabricPO).Query().Include(p => p.Supplier).LoadAsync();
         await _context.Entry(entity).Reference(r => r.FGPO).Query()
             .Include(f => f!.Customer).LoadAsync();
 
@@ -132,8 +131,7 @@ public class RollReceivingService : IRollReceivingService
         // Derivado del Fabric Receiving: nunca se pide ni se desincroniza
         entity.FabricPOId = receiving.FabricPOId;
         entity.FGPOId = receiving.FGPOId;
-        entity.Supplier = receiving.Supplier;
-        entity.Color = receiving.FGPO?.Color;
+        entity.Color = receiving.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName;
         entity.LotNumber = dto.LotNumber;
         entity.LotId = lot?.ID;
         entity.RollNumber = dto.RollNumber;
@@ -149,7 +147,7 @@ public class RollReceivingService : IRollReceivingService
         // Defaults desde el parent si no se envían
         entity.WarehouseLocation = string.IsNullOrWhiteSpace(dto.WarehouseLocation) ? receiving.WarehouseLocation : dto.WarehouseLocation;
         entity.ReceivedDate = dto.ReceivedDate == default ? receiving.ReceivingDate : dto.ReceivedDate;
-        entity.DataOwner = string.IsNullOrWhiteSpace(dto.DataOwner) ? receiving.DataOwner : dto.DataOwner;
+        entity.DataOwnerId = dto.DataOwnerId ?? receiving.DataOwnerId;
         entity.Comments = dto.Comments;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -184,7 +182,7 @@ public class RollReceivingService : IRollReceivingService
 
         var query = _context.RollReceivings
             .Include(r => r.Receiving)
-            .Include(r => r.FabricPO)
+            .Include(r => r.FabricPO).ThenInclude(p => p.Supplier)
             .Include(r => r.FGPO)
                 .ThenInclude(f => f!.Customer)
             .Where(r => r.Active);
@@ -196,7 +194,7 @@ public class RollReceivingService : IRollReceivingService
                 (r.RollNumber != null && r.RollNumber.Contains(searchTerm)) ||
                 (r.SupplierRollNumber != null && r.SupplierRollNumber.Contains(searchTerm)) ||
                 (r.LotNumber != null && r.LotNumber.Contains(searchTerm)) ||
-                (r.Supplier != null && r.Supplier.Contains(searchTerm)) ||
+                (r.FabricPO != null && r.FabricPO.Supplier != null && r.FabricPO.Supplier.Name.Contains(searchTerm)) ||
                 (r.ShadeGroup != null && r.ShadeGroup.Contains(searchTerm)) ||
                 (r.ReceivingNumber != null && r.ReceivingNumber.Contains(searchTerm)) ||
                 (r.FabricPO != null && r.FabricPO.FabricPONumber.Contains(searchTerm)) ||
@@ -225,8 +223,8 @@ public class RollReceivingService : IRollReceivingService
             ("rollnumber", true) => query.OrderByDescending(r => r.RollNumber),
             ("lotnumber", false) => query.OrderBy(r => r.LotNumber),
             ("lotnumber", true) => query.OrderByDescending(r => r.LotNumber),
-            ("supplier", false) => query.OrderBy(r => r.Supplier),
-            ("supplier", true) => query.OrderByDescending(r => r.Supplier),
+            ("supplier", false) => query.OrderBy(r => r.FabricPO != null && r.FabricPO.Supplier != null ? r.FabricPO.Supplier.Name : null),
+            ("supplier", true) => query.OrderByDescending(r => r.FabricPO != null && r.FabricPO.Supplier != null ? r.FabricPO.Supplier.Name : null),
             ("actualyardage", false) => query.OrderBy(r => r.ActualYardage),
             ("actualyardage", true) => query.OrderByDescending(r => r.ActualYardage),
             ("receiveddate", false) => query.OrderBy(r => r.ReceivedDate),
@@ -316,7 +314,7 @@ public class RollReceivingService : IRollReceivingService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
+            Supplier = item.FabricPO?.Supplier?.Name,
             LotNumber = item.LotNumber,
             LotId = item.LotId,
             RollNumber = item.RollNumber,
@@ -332,7 +330,7 @@ public class RollReceivingService : IRollReceivingService
             Condition = item.Condition,
             WarehouseLocation = item.WarehouseLocation,
             ReceivedDate = item.ReceivedDate,
-            DataOwner = item.DataOwner,
+            DataOwner = item.DataOwner?.UserName,
             Comments = item.Comments,
             Active = item.Active,
             CreatedAt = item.CreatedAt,

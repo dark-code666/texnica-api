@@ -14,7 +14,7 @@ public class CreateInlineQualityDto
     public int MinorDefects { get; set; }
     public int DefectivePieces { get; set; }
     public decimal MaxAllowed { get; set; }
-    public string? Inspector { get; set; }
+    public int? InspectorId { get; set; }
     public string? ImmediateCorrection { get; set; }
     public string? RootCause { get; set; }
 }

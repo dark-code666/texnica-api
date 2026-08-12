@@ -92,8 +92,6 @@ public class MillProductionService : IMillProductionService
         {
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
-            Supplier = dto.Supplier,
-            FabricComponent = dto.FabricComponent,
             Style = dto.Style,
             Color = dto.Color,
             PlannedQuantity = dto.PlannedQuantity,
@@ -108,7 +106,7 @@ public class MillProductionService : IMillProductionService
             PlannedExport = dto.PlannedExport,
             ActualExport = dto.ActualExport,
             Status = dto.Status,
-            DataOwner = dto.DataOwner,
+            DataOwnerId = dto.DataOwnerId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -148,8 +146,6 @@ public class MillProductionService : IMillProductionService
 
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
-        entity.Supplier = dto.Supplier;
-        entity.FabricComponent = dto.FabricComponent;
         entity.Style = dto.Style;
         entity.Color = dto.Color;
         entity.PlannedQuantity = dto.PlannedQuantity;
@@ -164,7 +160,7 @@ public class MillProductionService : IMillProductionService
         entity.PlannedExport = dto.PlannedExport;
         entity.ActualExport = dto.ActualExport;
         entity.Status = dto.Status;
-        entity.DataOwner = dto.DataOwner;
+        entity.DataOwnerId = dto.DataOwnerId;
         entity.Remarks = dto.Remarks;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -226,9 +222,10 @@ public class MillProductionService : IMillProductionService
         if (pageSize > 100) pageSize = 100;
 
         var query = _context.MillProductions
-            .Include(m => m.FabricPO)
-            .Include(m => m.FGPO)
-                .ThenInclude(f => f!.Customer)
+            .Include(m => m.FabricPO).ThenInclude(p => p!.Supplier)
+            .Include(m => m.FabricPO).ThenInclude(p => p!.Component)
+            .Include(m => m.FGPO).ThenInclude(f => f!.Customer)
+            .Include(m => m.DataOwner)
             .Where(m => m.Active);
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -236,9 +233,9 @@ public class MillProductionService : IMillProductionService
             var searchTerm = search.Trim();
             query = query.Where(m =>
                 (m.LotNumber != null && m.LotNumber.Contains(searchTerm)) ||
-                (m.Supplier != null && m.Supplier.Contains(searchTerm)) ||
+                (m.FabricPO != null && m.FabricPO.Supplier != null && m.FabricPO.Supplier.Name.Contains(searchTerm)) ||
                 (m.Style != null && m.Style.Contains(searchTerm)) ||
-                (m.FabricComponent != null && m.FabricComponent.Contains(searchTerm)) ||
+                (m.FabricPO != null && m.FabricPO.Component != null && m.FabricPO.Component.ComponentCode.Contains(searchTerm)) ||
                 (m.FabricPO != null && m.FabricPO.FabricPONumber.Contains(searchTerm)) ||
                 (m.FGPO != null && m.FGPO.FGPONumber.Contains(searchTerm)));
         }
@@ -250,7 +247,7 @@ public class MillProductionService : IMillProductionService
             query = query.Where(m => m.FGPO != null && m.FGPO.FGPONumber.Contains(fgpo.Trim()));
 
         if (!string.IsNullOrWhiteSpace(supplier))
-            query = query.Where(m => m.Supplier != null && m.Supplier.Contains(supplier.Trim()));
+            query = query.Where(m => m.FabricPO != null && m.FabricPO.Supplier != null && m.FabricPO.Supplier.Name.Contains(supplier.Trim()));
 
         if (!string.IsNullOrWhiteSpace(status))
             query = query.Where(m => m.Status == status);
@@ -266,8 +263,8 @@ public class MillProductionService : IMillProductionService
         {
             ("lotnumber", false) => query.OrderBy(m => m.LotNumber),
             ("lotnumber", true) => query.OrderByDescending(m => m.LotNumber),
-            ("supplier", false) => query.OrderBy(m => m.Supplier),
-            ("supplier", true) => query.OrderByDescending(m => m.Supplier),
+            ("supplier", false) => query.OrderBy(m => m.FabricPO != null && m.FabricPO.Supplier != null ? m.FabricPO.Supplier.Name : null),
+            ("supplier", true) => query.OrderByDescending(m => m.FabricPO != null && m.FabricPO.Supplier != null ? m.FabricPO.Supplier.Name : null),
             ("plannedquantity", false) => query.OrderBy(m => m.PlannedQuantity),
             ("plannedquantity", true) => query.OrderByDescending(m => m.PlannedQuantity),
             ("producedquantity", false) => query.OrderBy(m => m.ProducedQuantity),
@@ -343,9 +340,8 @@ public class MillProductionService : IMillProductionService
             FabricPONumber = item.FabricPO?.FabricPONumber ?? string.Empty,
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
-            CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.Supplier,
-            FabricComponent = item.FabricComponent,
+            SupplierName = item.FabricPO?.Supplier?.Name,
+            ComponentCode = item.FabricPO?.Component?.ComponentCode,
             Style = item.Style,
             Color = item.Color,
             PlannedQuantity = item.PlannedQuantity,
@@ -361,7 +357,8 @@ public class MillProductionService : IMillProductionService
             PlannedExport = item.PlannedExport,
             ActualExport = item.ActualExport,
             Status = item.Status,
-            DataOwner = item.DataOwner,
+            DataOwnerId = item.DataOwnerId,
+            DataOwnerName = item.DataOwner?.UserName,
             Remarks = item.Remarks,
             Active = item.Active,
             CreatedAt = item.CreatedAt,

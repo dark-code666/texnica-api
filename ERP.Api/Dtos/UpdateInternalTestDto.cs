@@ -5,7 +5,6 @@ public class UpdateInternalTestDto
     public DateTime TestDate { get; set; }
     public int FabricPOId { get; set; }
     public int FGPOId { get; set; }
-    public string? Supplier { get; set; }
     public string? LotNumber { get; set; }
     public string? Color { get; set; }
     public decimal ActualWidth { get; set; }
@@ -24,8 +23,8 @@ public class UpdateInternalTestDto
     public string? WashAppearance { get; set; }
     public string? HandFeel { get; set; }
     public string? TestResult { get; set; }
-    public string? TestedBy { get; set; }
-    public string? ApprovedBy { get; set; }
+    public int? TestedByUserId { get; set; }
+    public int? ApprovedByUserId { get; set; }
     public string? ReportLink { get; set; }
     public string? Comments { get; set; }
 }

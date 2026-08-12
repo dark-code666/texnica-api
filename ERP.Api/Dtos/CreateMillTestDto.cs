@@ -4,7 +4,6 @@ public class CreateMillTestDto
 {
     public int FabricPOId { get; set; }
     public int FGPOId { get; set; }
-    public string? Supplier { get; set; }
     public string? LotNumber { get; set; }
     public string? Color { get; set; }
     public decimal RollQty { get; set; }
@@ -19,7 +18,7 @@ public class CreateMillTestDto
     public string? WashAppearance { get; set; }
     public string? HandFeel { get; set; }
     public DateTime TestDate { get; set; }
-    public string? TestedBy { get; set; }
+    public int? TestedByUserId { get; set; }
     public string? TestResult { get; set; }
     public bool ApprovedForExport { get; set; }
     public string? ReportLink { get; set; }

@@ -4,12 +4,16 @@ public class MillProductionDto
 {
     public int ID { get; set; }
     public int FabricPOId { get; set; }
-    public string FabricPONumber { get; set; } = null!;
+    public string? FabricPONumber { get; set; }
     public int FGPOId { get; set; }
-    public string FGPONumber { get; set; } = null!;
-    public string CustomerName { get; set; } = null!;
-    public string? Supplier { get; set; }
-    public string? FabricComponent { get; set; }
+    public string? FGPONumber { get; set; }
+    
+    // Derivados de FabricPO
+    public string? SupplierName { get; set; }
+    public string? Supplier => SupplierName;
+    public string? ComponentCode { get; set; }
+    public string? FabricComponent => ComponentCode;
+
     public string? Style { get; set; }
     public string? Color { get; set; }
     public decimal PlannedQuantity { get; set; }
@@ -25,7 +29,9 @@ public class MillProductionDto
     public DateTime? PlannedExport { get; set; }
     public DateTime? ActualExport { get; set; }
     public string? Status { get; set; }
-    public string? DataOwner { get; set; }
+    public int? DataOwnerId { get; set; }
+    public string? DataOwnerName { get; set; }
+    public string? DataOwner => DataOwnerName;
     public string? Remarks { get; set; }
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }

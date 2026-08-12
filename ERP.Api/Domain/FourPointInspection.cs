@@ -28,7 +28,11 @@ public class FourPointInspection : BaseEntity
     public int RejectedQty { get; set; }
     public int HoldQty { get; set; }
     public string? Result { get; set; }
-    public string? Inspector { get; set; }
+
+    // Inspector: FK a Users (usuario logueado)
+    public int? InspectorId { get; set; }
+    public User? Inspector { get; set; }
+
     public string? ReportLink { get; set; }
     public string? Comments { get; set; }
 }

@@ -16,6 +16,6 @@ public class CreateRollReceivingDto
     public string? Condition { get; set; }
     public string? WarehouseLocation { get; set; }
     public DateTime ReceivedDate { get; set; }
-    public string? DataOwner { get; set; }
+    public int? DataOwnerId { get; set; }
     public string? Comments { get; set; }
 }

@@ -22,6 +22,176 @@ namespace ERP.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ERP.Api.Domain.AqlInspection", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("AqlMajor")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("AqlMinor")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("CriticalAc")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CriticalDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CriticalRe")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Disposition")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("InspectionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InspectionLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("InspectionType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("InspectorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LotShipment")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("LotSize")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MajorAc")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MajorDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MajorRe")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinorAc")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinorDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinorRe")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReportLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Result")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [CriticalDefects] >= [CriticalRe] OR [MajorDefects] >= [MajorRe] OR [MinorDefects] >= [MinorRe] THEN 'Failed' ELSE 'Passed' END) AS nvarchar(50))");
+
+                    b.Property<int>("SampleSize")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("InspectionType");
+
+                    b.HasIndex("InspectorId");
+
+                    b.HasIndex("LotShipment");
+
+                    b.HasIndex("Result");
+
+                    b.ToTable("AqlInspections");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.BoxType", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("BoxCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<decimal?>("EmptyCartonWeight")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("Height")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal?>("Length")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("Width")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("BoxCode")
+                        .IsUnique();
+
+                    b.ToTable("BoxTypes");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.CatalogValue", b =>
                 {
                     b.Property<int>("ID")
@@ -431,6 +601,82 @@ namespace ERP.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.Color", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ColorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("DyeMethod")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ColorName")
+                        .IsUnique();
+
+                    b.ToTable("Colors");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Component", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ComponentCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ComponentCode")
+                        .IsUnique();
+
+                    b.ToTable("Components");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.Customer", b =>
                 {
                     b.Property<int>("ID")
@@ -481,6 +727,464 @@ namespace ERP.Api.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.CuttingControl", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("ActualCut")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime>("CutDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CutToSewDifference")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST(([GoodCut] - [SentToSewing]) AS int)");
+
+                    b.Property<int>("CuttingVariance")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST(([GoodCut] - [PlannedCut]) AS int)");
+
+                    b.Property<int>("DamagedQty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("GoodCut")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MarkerNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("OvercutQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST((CASE WHEN [GoodCut] - [PlannedCut] > 0 THEN [GoodCut] - [PlannedCut] ELSE 0 END) AS int)");
+
+                    b.Property<int>("PendingCut")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST((CASE WHEN [PlannedCut] - [GoodCut] > 0 THEN [PlannedCut] - [GoodCut] ELSE 0 END) AS int)");
+
+                    b.Property<int>("PlannedCut")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReleaseStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("ReplacementCut")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResponsiblePersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SentToSewing")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("ReleaseStatus");
+
+                    b.HasIndex("ResponsiblePersonId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("CuttingControls");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.CuttingPanelQc", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("BundleNo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("CorrectiveAction")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CutLotLay")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("DefectRatePct")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [SampleQty] = 0 THEN 0 ELSE (([PanelDefects] + [NotchesDefects] + [DrillMarkDefects] + [ShadeDefects] + [MeasurementDefects]) / CAST([SampleQty] AS decimal(18,4))) END) AS decimal(18,4))");
+
+                    b.Property<int>("DrillMarkDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("InspectionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("InspectorId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("MaxAllowed")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("MeasurementDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NotchesDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PanelDefects")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Result")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [SampleQty] = 0 THEN 'Pending' WHEN (([PanelDefects] + [NotchesDefects] + [DrillMarkDefects] + [ShadeDefects] + [MeasurementDefects]) / CAST([SampleQty] AS decimal(18,4))) <= [MaxAllowed] THEN 'Passed' ELSE 'Failed' END) AS nvarchar(50))");
+
+                    b.Property<int>("SampleQty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShadeDefects")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalDefects")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST(([PanelDefects] + [NotchesDefects] + [DrillMarkDefects] + [ShadeDefects] + [MeasurementDefects]) AS int)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("InspectorId");
+
+                    b.HasIndex("Result");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("CuttingPanelQcs");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.CuttingRelease", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("ApprovedCutQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ApprovedWidth")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ApprovedYield")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Conditions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Exception")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MarkerNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PrrResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("ReleaseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReleaseNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ReleaseStatus")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("ReleasedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReviewedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("ReleaseNumber")
+                        .IsUnique()
+                        .HasFilter("[ReleaseNumber] IS NOT NULL");
+
+                    b.HasIndex("ReleaseStatus");
+
+                    b.HasIndex("ReleasedByUserId");
+
+                    b.HasIndex("ReviewedByUserId");
+
+                    b.ToTable("CuttingReleases");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Fabric", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Construction")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("FabricName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FabricReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("Gsm")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("WeightOz")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FabricName");
+
+                    b.ToTable("Fabrics");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FabricInventory", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("ApprovedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("AvailableQuantity")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [ApprovedQuantity] - [ReservedQuantity] - [IssuedQuantity] + [ReturnedQuantity] > 0 THEN [ApprovedQuantity] - [ReservedQuantity] - [IssuedQuantity] + [ReturnedQuantity] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FabricPOId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("HoldQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("InventoryStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("IssuedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LotId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ReceivedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("RejectedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("ReservedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ReturnedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ShortageQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WarehouseLocation")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("InventoryStatus");
+
+                    b.HasIndex("LotId");
+
+                    b.HasIndex("FabricPOId", "FGPOId");
+
+                    b.ToTable("FabricInventories");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.FabricPO", b =>
                 {
                     b.Property<int>("ID")
@@ -494,18 +1198,16 @@ namespace ERP.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("ApprovedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ComponentId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("FabricComponent")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FabricMill")
                         .HasMaxLength(100)
@@ -540,9 +1242,8 @@ namespace ERP.Api.Migrations
                     b.Property<DateTime?>("PlannedExport")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PurchaseOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("PurchaseOwnerUserId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Remarks")
                         .HasMaxLength(1000)
@@ -551,9 +1252,8 @@ namespace ERP.Api.Migrations
                     b.Property<DateTime>("RequiredCompletion")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UOM")
                         .HasMaxLength(20)
@@ -568,8 +1268,16 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("ComponentId");
+
                     b.HasIndex("FabricPONumber")
                         .IsUnique();
+
+                    b.HasIndex("PurchaseOwnerUserId");
+
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("FabricPOs");
                 });
@@ -582,6 +1290,11 @@ namespace ERP.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<decimal>("AllocatedQuantity")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
@@ -589,6 +1302,11 @@ namespace ERP.Api.Migrations
                     b.Property<string>("Color")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
@@ -602,6 +1320,9 @@ namespace ERP.Api.Migrations
                     b.Property<string>("Style")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
@@ -635,9 +1356,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ExpectedRolls")
                         .HasColumnType("int");
@@ -657,9 +1377,8 @@ namespace ERP.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("ReceivedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("ReceivedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<int>("ReceivedRolls")
                         .HasColumnType("int");
@@ -699,10 +1418,6 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -712,7 +1427,11 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("DataOwnerId");
+
                     b.HasIndex("FabricPOId");
+
+                    b.HasIndex("ReceivedByUserId");
 
                     b.HasIndex("ReceivingNumber")
                         .IsUnique();
@@ -759,6 +1478,9 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("ComponentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Composition")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -768,16 +1490,11 @@ namespace ERP.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
-
-                    b.Property<string>("FabricComponent")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FabricDescription")
                         .HasMaxLength(200)
@@ -827,9 +1544,93 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ComponentId");
+
+                    b.HasIndex("DataOwnerId");
+
                     b.HasIndex("FGPOId");
 
                     b.ToTable("FabricRequirements");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FabricReservation", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FabricPOId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("LotId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ReleasedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("RemainingReservation")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [ReservedQuantity] - [ReleasedQuantity] > 0 THEN [ReservedQuantity] - [ReleasedQuantity] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<DateTime>("ReservationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ReservedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ReservedQuantity")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("LotId");
+
+                    b.HasIndex("ReservedByUserId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("FabricPOId", "FGPOId");
+
+                    b.ToTable("FabricReservations");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FabricShipment", b =>
@@ -854,9 +1655,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("DeliveredToTexnicaDate")
                         .HasColumnType("datetime2");
@@ -927,10 +1727,6 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("UOM")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -939,6 +1735,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
 
                     b.HasIndex("FabricPOId");
 
@@ -1019,10 +1817,6 @@ namespace ERP.Api.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<string>("Color")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -1031,9 +1825,8 @@ namespace ERP.Api.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DeliveryDate")
                         .HasColumnType("datetime2");
@@ -1090,10 +1883,6 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Style")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("TemporaryNumber")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -1109,10 +1898,66 @@ namespace ERP.Api.Migrations
 
                     b.HasIndex("CustomerId");
 
+                    b.HasIndex("DataOwnerId");
+
                     b.HasIndex("FGPONumber")
                         .IsUnique();
 
                     b.ToTable("Fgpos");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FgpoLine", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("FgpoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StyleId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ColorId");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("StyleId");
+
+                    b.HasIndex("FgpoId", "StyleId", "ColorId", "SizeId")
+                        .IsUnique();
+
+                    b.ToTable("FgpoLines");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FourPointInspection", b =>
@@ -1156,9 +2001,8 @@ namespace ERP.Api.Migrations
                     b.Property<DateTime>("InspectionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Inspector")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("InspectorId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("LotId")
                         .HasColumnType("int");
@@ -1226,6 +2070,8 @@ namespace ERP.Api.Migrations
 
                     b.HasIndex("FabricPOId");
 
+                    b.HasIndex("InspectorId");
+
                     b.HasIndex("LotId");
 
                     b.HasIndex("ReceivingId");
@@ -1286,9 +2132,8 @@ namespace ERP.Api.Migrations
                     b.Property<DateTime>("InspectionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Inspector")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("InspectorId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Line")
                         .HasMaxLength(50)
@@ -1337,6 +2182,8 @@ namespace ERP.Api.Migrations
 
                     b.HasIndex("FGPOId");
 
+                    b.HasIndex("InspectorId");
+
                     b.HasIndex("Line");
 
                     b.HasIndex("Result");
@@ -1361,9 +2208,8 @@ namespace ERP.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("ApprovedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("BowingPct")
                         .HasPrecision(18, 4)
@@ -1443,10 +2289,6 @@ namespace ERP.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<decimal>("TargetGSM")
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
@@ -1458,9 +2300,8 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("TestedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("TestedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TorquePct")
                         .HasPrecision(18, 4)
@@ -1496,6 +2337,8 @@ namespace ERP.Api.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ApprovedByUserId");
+
                     b.HasIndex("FabricPOId");
 
                     b.HasIndex("LotId");
@@ -1503,6 +2346,8 @@ namespace ERP.Api.Migrations
                     b.HasIndex("LotNumber");
 
                     b.HasIndex("TestResult");
+
+                    b.HasIndex("TestedByUserId");
 
                     b.HasIndex("FGPOId", "FabricPOId");
 
@@ -1587,16 +2432,11 @@ namespace ERP.Api.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
-
-                    b.Property<string>("FabricComponent")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("FabricPOId")
                         .HasColumnType("int");
@@ -1641,10 +2481,6 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -1657,6 +2493,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("decimal(18,4)");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
 
                     b.HasIndex("FabricPOId");
 
@@ -1749,10 +2587,6 @@ namespace ERP.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime>("TestDate")
                         .HasColumnType("datetime2");
 
@@ -1760,9 +2594,8 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("TestedBy")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("TestedByUserId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TorquePercentage")
                         .HasPrecision(18, 4)
@@ -1788,6 +2621,8 @@ namespace ERP.Api.Migrations
                     b.HasIndex("LotNumber");
 
                     b.HasIndex("TestResult");
+
+                    b.HasIndex("TestedByUserId");
 
                     b.HasIndex("FGPOId", "FabricPOId");
 
@@ -1833,6 +2668,284 @@ namespace ERP.Api.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Permissions");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.PpSample", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConstructionResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CustomerComments")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("CustomerReview")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("DocumentLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FabricResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FitResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("InternalReview")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LabelResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("MeasurementResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhotoLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("PreparationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SampleVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("SubmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TrimResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TrimVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("SampleVersion");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("PpSamples");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Price", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sku")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("StyleId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ColorId");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("StyleId", "ColorId", "SizeId")
+                        .IsUnique();
+
+                    b.ToTable("Prices");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.ProductionReadiness", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FabricWidthConfirmed")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LinePlanned")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("MarkerApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("OpenConditions")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("OverallResult")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [PoConfirmed]='Not Ready' OR [TechPackCurrent]='Not Ready' OR [FabricApproved]='Not Ready' OR [TrimsApproved]='Not Ready' OR [TrimsAvailable]='Not Ready' OR [PpSampleApproved]='Not Ready' OR [PatternApproved]='Not Ready' OR [MarkerApproved]='Not Ready' OR [FabricWidthConfirmed]='Not Ready' OR [ShrinkageApproved]='Not Ready' OR [TorqueApproved]='Not Ready' OR [QualityStandardReady]='Not Ready' OR [LinePlanned]='Not Ready' THEN 'Blocked' WHEN [PoConfirmed]='Pending' OR [TechPackCurrent]='Pending' OR [FabricApproved]='Pending' OR [TrimsApproved]='Pending' OR [TrimsAvailable]='Pending' OR [PpSampleApproved]='Pending' OR [PatternApproved]='Pending' OR [MarkerApproved]='Pending' OR [FabricWidthConfirmed]='Pending' OR [ShrinkageApproved]='Pending' OR [TorqueApproved]='Pending' OR [QualityStandardReady]='Pending' OR [LinePlanned]='Pending' THEN 'Not Ready' WHEN [PoConfirmed]='Exception Approved' OR [TechPackCurrent]='Exception Approved' OR [FabricApproved]='Exception Approved' OR [TrimsApproved]='Exception Approved' OR [TrimsAvailable]='Exception Approved' OR [PpSampleApproved]='Exception Approved' OR [PatternApproved]='Exception Approved' OR [MarkerApproved]='Exception Approved' OR [FabricWidthConfirmed]='Exception Approved' OR [ShrinkageApproved]='Exception Approved' OR [TorqueApproved]='Exception Approved' OR [QualityStandardReady]='Exception Approved' OR [LinePlanned]='Exception Approved' THEN 'Ready with Conditions' ELSE 'Ready' END) AS nvarchar(50))");
+
+                    b.Property<string>("PatternApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PoConfirmed")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PpSampleApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("QualityStandardReady")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("ResponsibleOwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ReviewDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ShrinkageApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TechPackCurrent")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TorqueApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TrimsApproved")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TrimsAvailable")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("OverallResult");
+
+                    b.HasIndex("ResponsibleOwnerId");
+
+                    b.ToTable("ProductionReadiness");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Role", b =>
@@ -1952,9 +3065,8 @@ namespace ERP.Api.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("DataOwner")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("FGPOId")
                         .HasColumnType("int");
@@ -1995,10 +3107,6 @@ namespace ERP.Api.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Supplier")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("SupplierRollNumber")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -2011,6 +3119,8 @@ namespace ERP.Api.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
 
                     b.HasIndex("FabricPOId");
 
@@ -2025,6 +3135,112 @@ namespace ERP.Api.Migrations
                     b.HasIndex("FGPOId", "FabricPOId");
 
                     b.ToTable("RollReceivings");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.SewingProduction", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("CumulativeOutput")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DailyOutput")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DailyTarget")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DowntimeMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Line")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Overproduction")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST((CASE WHEN [CumulativeOutput] - [SewingInput] > 0 THEN [CumulativeOutput] - [SewingInput] ELSE 0 END) AS int)");
+
+                    b.Property<int>("PendingSewing")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST((CASE WHEN [SewingInput] - [CumulativeOutput] > 0 THEN [SewingInput] - [CumulativeOutput] ELSE 0 END) AS int)");
+
+                    b.Property<DateTime>("ProductionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Reject")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Rework")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SewingInput")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SewingVariance")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("CAST(([CumulativeOutput] - [SewingInput]) AS int)");
+
+                    b.Property<string>("Shift")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SupervisorId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TargetAchievementPct")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [DailyTarget] = 0 THEN 0 ELSE ([DailyOutput] / CAST([DailyTarget] AS decimal(18,4))) END) AS decimal(18,4))");
+
+                    b.Property<string>("TopStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Wip")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("Line");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("SupervisorId");
+
+                    b.ToTable("SewingProductions");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.ShadeMatch", b =>
@@ -2125,6 +3341,450 @@ namespace ERP.Api.Migrations
                     b.ToTable("ShadeMatches");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.Size", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("SizeCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("SizeCode")
+                        .IsUnique();
+
+                    b.ToTable("Sizes");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Style", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Construction")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("FabricContent")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("FabricDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<decimal?>("Gsm")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("StyleCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("WeightOz")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("StyleCode")
+                        .IsUnique();
+
+                    b.ToTable("Styles");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.StyleYield", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("ComponentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("StyleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("YieldQuoted")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<decimal?>("YieldReal")
+                        .HasPrecision(18, 6)
+                        .HasColumnType("decimal(18,6)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ComponentId");
+
+                    b.HasIndex("StyleId", "ComponentId")
+                        .IsUnique();
+
+                    b.ToTable("StyleYields");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Supplier", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Contact")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("SupplierCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Suppliers");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.TopSample", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ApprovedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConstructionResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CorrectiveAction")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CustomerReview")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CutLotBundle")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DocumentLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FabricLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("InternalReview")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("LabelResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("MeasurementResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PackingResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PhotoLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ProductionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProductionLine")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ThreadLot")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TopQty")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TrimVersion")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("WorkmanshipResult")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ApprovedByUserId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("ProductionLine");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("TopSamples");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.TrimsControl", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ApprovalStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("ApprovedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("AvailabilityStatus")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(450)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [RequiredQty] - [ApprovedQty] > 0 THEN 'Shortage' WHEN (CASE WHEN [ApprovedQty] - [ReservedQty] - [IssuedQty] > 0 THEN [ApprovedQty] - [ReservedQty] - [IssuedQty] ELSE 0 END) >= [RequiredQty] THEN 'Ready' WHEN (CASE WHEN [ApprovedQty] - [ReservedQty] - [IssuedQty] > 0 THEN [ApprovedQty] - [ReservedQty] - [IssuedQty] ELSE 0 END) > 0 THEN 'Partially Ready' ELSE 'Pending' END) AS nvarchar(50))");
+
+                    b.Property<decimal>("AvailableQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [ApprovedQty] - [ReservedQty] - [IssuedQty] > 0 THEN [ApprovedQty] - [ReservedQty] - [IssuedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("ConsumptionPerGarment")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("DataOwner")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("DevelopmentStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("Eta")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("IssuedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("OrderedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ReceivedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("RejectedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("RequiredQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ReservedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ShortageQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [RequiredQty] - [ApprovedQty] > 0 THEN [RequiredQty] - [ApprovedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TrimType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Uom")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("AvailabilityStatus");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.ToTable("TrimsControls");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.User", b =>
                 {
                     b.Property<int>("ID")
@@ -2173,6 +3833,163 @@ namespace ERP.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.AqlInspection", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "Inspector")
+                        .WithMany()
+                        .HasForeignKey("InspectorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Inspector");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.CuttingControl", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "ResponsiblePerson")
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("ResponsiblePerson");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.CuttingPanelQc", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "Inspector")
+                        .WithMany()
+                        .HasForeignKey("InspectorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Inspector");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.CuttingRelease", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "ReleasedBy")
+                        .WithMany()
+                        .HasForeignKey("ReleasedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.User", "ReviewedBy")
+                        .WithMany()
+                        .HasForeignKey("ReviewedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("ReleasedBy");
+
+                    b.Navigation("ReviewedBy");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FabricInventory", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.FabricPO", "FabricPO")
+                        .WithMany()
+                        .HasForeignKey("FabricPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Lot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DataOwner");
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("FabricPO");
+
+                    b.Navigation("Lot");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FabricPO", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Component", "Component")
+                        .WithMany()
+                        .HasForeignKey("ComponentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.User", "PurchaseOwner")
+                        .WithMany()
+                        .HasForeignKey("PurchaseOwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("Component");
+
+                    b.Navigation("PurchaseOwner");
+
+                    b.Navigation("Supplier");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.FabricPOFgpo", b =>
                 {
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
@@ -2194,6 +4011,11 @@ namespace ERP.Api.Migrations
 
             modelBuilder.Entity("ERP.Api.Domain.FabricReceiving", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
@@ -2206,24 +4028,92 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ERP.Api.Domain.User", "ReceivedBy")
+                        .WithMany()
+                        .HasForeignKey("ReceivedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("DataOwner");
+
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
+
+                    b.Navigation("ReceivedBy");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FabricRequirement", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.Component", "Component")
+                        .WithMany()
+                        .HasForeignKey("ComponentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Component");
+
+                    b.Navigation("DataOwner");
+
                     b.Navigation("FGPO");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FabricReservation", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.FabricPO", "FabricPO")
+                        .WithMany()
+                        .HasForeignKey("FabricPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Lot", "Lot")
+                        .WithMany()
+                        .HasForeignKey("LotId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.User", "ReservedBy")
+                        .WithMany()
+                        .HasForeignKey("ReservedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("FabricPO");
+
+                    b.Navigation("Lot");
+
+                    b.Navigation("ReservedBy");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FabricShipment", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
@@ -2240,6 +4130,8 @@ namespace ERP.Api.Migrations
                         .WithMany()
                         .HasForeignKey("LotId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("DataOwner");
 
                     b.Navigation("FGPO");
 
@@ -2256,7 +4148,49 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Customer");
+
+                    b.Navigation("DataOwner");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.FgpoLine", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "Fgpo")
+                        .WithMany("FgpoLines")
+                        .HasForeignKey("FgpoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Style", "Style")
+                        .WithMany()
+                        .HasForeignKey("StyleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Color");
+
+                    b.Navigation("Fgpo");
+
+                    b.Navigation("Size");
+
+                    b.Navigation("Style");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.FourPointInspection", b =>
@@ -2273,6 +4207,11 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ERP.Api.Domain.User", "Inspector")
+                        .WithMany()
+                        .HasForeignKey("InspectorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Lot", "Lot")
                         .WithMany()
                         .HasForeignKey("LotId")
@@ -2287,6 +4226,8 @@ namespace ERP.Api.Migrations
 
                     b.Navigation("FabricPO");
 
+                    b.Navigation("Inspector");
+
                     b.Navigation("Lot");
 
                     b.Navigation("Receiving");
@@ -2300,11 +4241,23 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("ERP.Api.Domain.User", "Inspector")
+                        .WithMany()
+                        .HasForeignKey("InspectorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("FGPO");
+
+                    b.Navigation("Inspector");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.InternalTest", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
@@ -2322,11 +4275,20 @@ namespace ERP.Api.Migrations
                         .HasForeignKey("LotId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("ERP.Api.Domain.User", "TestedBy")
+                        .WithMany()
+                        .HasForeignKey("TestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
 
                     b.Navigation("Lot");
+
+                    b.Navigation("TestedBy");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Lot", b =>
@@ -2350,6 +4312,11 @@ namespace ERP.Api.Migrations
 
             modelBuilder.Entity("ERP.Api.Domain.MillProduction", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
@@ -2366,6 +4333,8 @@ namespace ERP.Api.Migrations
                         .WithMany()
                         .HasForeignKey("LotId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("DataOwner");
 
                     b.Navigation("FGPO");
 
@@ -2393,11 +4362,95 @@ namespace ERP.Api.Migrations
                         .HasForeignKey("LotId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("ERP.Api.Domain.User", "TestedBy")
+                        .WithMany()
+                        .HasForeignKey("TestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
 
                     b.Navigation("Lot");
+
+                    b.Navigation("TestedBy");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.PpSample", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.Price", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("ColorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Style", "Style")
+                        .WithMany()
+                        .HasForeignKey("StyleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Color");
+
+                    b.Navigation("Size");
+
+                    b.Navigation("Style");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.ProductionReadiness", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "ResponsibleOwner")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("ResponsibleOwner");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.RolePermission", b =>
@@ -2421,6 +4474,11 @@ namespace ERP.Api.Migrations
 
             modelBuilder.Entity("ERP.Api.Domain.RollReceiving", b =>
                 {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
                         .WithMany()
                         .HasForeignKey("FGPOId")
@@ -2444,6 +4502,8 @@ namespace ERP.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("DataOwner");
+
                     b.Navigation("FGPO");
 
                     b.Navigation("FabricPO");
@@ -2451,6 +4511,31 @@ namespace ERP.Api.Migrations
                     b.Navigation("Lot");
 
                     b.Navigation("Receiving");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.SewingProduction", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.User", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Size");
+
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.ShadeMatch", b =>
@@ -2462,6 +4547,68 @@ namespace ERP.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("FGPO");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.StyleYield", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Component", "Component")
+                        .WithMany()
+                        .HasForeignKey("ComponentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Style", "Style")
+                        .WithMany()
+                        .HasForeignKey("StyleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Component");
+
+                    b.Navigation("Style");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.TopSample", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.TrimsControl", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.User", b =>
@@ -2482,6 +4629,8 @@ namespace ERP.Api.Migrations
             modelBuilder.Entity("ERP.Api.Domain.Fgpo", b =>
                 {
                     b.Navigation("FabricPOFgpos");
+
+                    b.Navigation("FgpoLines");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Permission", b =>

@@ -10,6 +10,8 @@ public class FgpoDto
     public string CustomerName { get; set; } = null!;
     public string? Style { get; set; }
     public string? Color { get; set; }
+    public int? SizeId { get; set; }
+    public string SizeCode { get; set; } = string.Empty;
     public int OrderQuantity { get; set; }
     public DateTime DeliveryDate { get; set; }
     public decimal InTransitQty { get; set; }
@@ -22,7 +24,9 @@ public class FgpoDto
     public decimal ProductionVariance { get; set; }
     public decimal PendingProduction { get; set; }
     public decimal OverproductionQty { get; set; }
-    public string? DataOwner { get; set; }
+    public int? DataOwnerId { get; set; }
+    public string? DataOwnerName { get; set; }
+    public string? DataOwner => DataOwnerName;
     public string? Remarks { get; set; }
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }

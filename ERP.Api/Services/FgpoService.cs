@@ -26,6 +26,9 @@ public class FgpoService : IFgpoService
     {
         var fgpos = await _context.Fgpos
             .Include(f => f.Customer)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Size)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Style)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Color)
             .Where(f => f.Active)
             .OrderByDescending(f => f.CreatedAt)
             .ToListAsync();
@@ -37,6 +40,9 @@ public class FgpoService : IFgpoService
     {
         var fgpo = await _context.Fgpos
             .Include(f => f.Customer)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Size)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Style)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Color)
             .FirstOrDefaultAsync(f => f.ID == id && f.Active);
 
         return fgpo is null ? null : ToDto(fgpo);
@@ -79,15 +85,13 @@ public class FgpoService : IFgpoService
             TemporaryNumber = dto.TemporaryNumber,
             Status = dto.Status,
             CustomerId = dto.CustomerId,
-            Style = dto.Style,
-            Color = dto.Color,
             OrderQuantity = dto.OrderQuantity,
             DeliveryDate = dto.DeliveryDate,
             InTransitQty = dto.InTransitQty,
             ReceivedQty = dto.ReceivedQty,
             TotalShippedQty = dto.TotalShippedQty,
             ProducedQty = dto.ProducedQty,
-            DataOwner = dto.DataOwner,
+            DataOwnerId = dto.DataOwnerId,
             Remarks = dto.Remarks,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -144,15 +148,13 @@ public class FgpoService : IFgpoService
         entity.TemporaryNumber = dto.TemporaryNumber;
         entity.Status = dto.Status;
         entity.CustomerId = dto.CustomerId;
-        entity.Style = dto.Style;
-        entity.Color = dto.Color;
         entity.OrderQuantity = dto.OrderQuantity;
         entity.DeliveryDate = dto.DeliveryDate;
         entity.InTransitQty = dto.InTransitQty;
         entity.ReceivedQty = dto.ReceivedQty;
         entity.TotalShippedQty = dto.TotalShippedQty;
         entity.ProducedQty = dto.ProducedQty;
-        entity.DataOwner = dto.DataOwner;
+        entity.DataOwnerId = dto.DataOwnerId;
         entity.Remarks = dto.Remarks;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -188,6 +190,9 @@ public class FgpoService : IFgpoService
     {
         var query = _context.Fgpos
             .Include(f => f.Customer)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Size)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Style)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Color)
             .Where(f => f.Active);
 
         if (!string.IsNullOrWhiteSpace(term))
@@ -197,9 +202,9 @@ public class FgpoService : IFgpoService
                 f.FGPONumber.Contains(searchTerm) ||
                 (f.TemporaryNumber != null && f.TemporaryNumber.Contains(searchTerm)) ||
                 (f.Customer != null && f.Customer.Name.Contains(searchTerm)) ||
-                (f.Style != null && f.Style.Contains(searchTerm)) ||
-                (f.Color != null && f.Color.Contains(searchTerm)) ||
-                (f.DataOwner != null && f.DataOwner.Contains(searchTerm)));
+                f.FgpoLines.Any(l => l.Active && l.Style != null && l.Style.StyleCode.Contains(searchTerm)) ||
+                f.FgpoLines.Any(l => l.Active && l.Color != null && l.Color.ColorName.Contains(searchTerm)) ||
+                (f.DataOwner != null && f.DataOwner.UserName.Contains(searchTerm)));
         }
 
         var fgpos = await query
@@ -217,6 +222,9 @@ public class FgpoService : IFgpoService
 
         var query = _context.Fgpos
             .Include(f => f.Customer)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Size)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Style)
+            .Include(f => f.FgpoLines).ThenInclude(l => l.Color)
             .Where(f => f.Active);
 
         // Búsqueda general
@@ -227,9 +235,9 @@ public class FgpoService : IFgpoService
                 f.FGPONumber.Contains(searchTerm) ||
                 (f.TemporaryNumber != null && f.TemporaryNumber.Contains(searchTerm)) ||
                 (f.Customer != null && f.Customer.Name.Contains(searchTerm)) ||
-                (f.Style != null && f.Style.Contains(searchTerm)) ||
-                (f.Color != null && f.Color.Contains(searchTerm)) ||
-                (f.DataOwner != null && f.DataOwner.Contains(searchTerm)));
+                f.FgpoLines.Any(l => l.Active && l.Style != null && l.Style.StyleCode.Contains(searchTerm)) ||
+                f.FgpoLines.Any(l => l.Active && l.Color != null && l.Color.ColorName.Contains(searchTerm)) ||
+                (f.DataOwner != null && f.DataOwner.UserName.Contains(searchTerm)));
         }
 
         // Filtros
@@ -258,10 +266,10 @@ public class FgpoService : IFgpoService
             ("fgponumber", true) => query.OrderByDescending(f => f.FGPONumber),
             ("customer", false) => query.OrderBy(f => f.Customer!.Name),
             ("customer", true) => query.OrderByDescending(f => f.Customer!.Name),
-            ("style", false) => query.OrderBy(f => f.Style),
-            ("style", true) => query.OrderByDescending(f => f.Style),
-            ("color", false) => query.OrderBy(f => f.Color),
-            ("color", true) => query.OrderByDescending(f => f.Color),
+            ("style", false) => query.OrderBy(f => f.FgpoLines.FirstOrDefault(l => l.Active)!.Style!.StyleCode),
+            ("style", true) => query.OrderByDescending(f => f.FgpoLines.FirstOrDefault(l => l.Active)!.Style!.StyleCode),
+            ("color", false) => query.OrderBy(f => f.FgpoLines.FirstOrDefault(l => l.Active)!.Color!.ColorName),
+            ("color", true) => query.OrderByDescending(f => f.FgpoLines.FirstOrDefault(l => l.Active)!.Color!.ColorName),
             ("deliverydate", false) => query.OrderBy(f => f.DeliveryDate),
             ("deliverydate", true) => query.OrderByDescending(f => f.DeliveryDate),
             ("orderquantity", false) => query.OrderBy(f => f.OrderQuantity),
@@ -347,6 +355,7 @@ public class FgpoService : IFgpoService
 
     private static FgpoDto ToDto(Fgpo fgpo)
     {
+        var primaryLine = fgpo.FgpoLines?.FirstOrDefault(l => l.Active);
         return new FgpoDto
         {
             ID = fgpo.ID,
@@ -355,8 +364,10 @@ public class FgpoService : IFgpoService
             Status = fgpo.Status,
             CustomerId = fgpo.CustomerId,
             CustomerName = fgpo.Customer?.Name ?? string.Empty,
-            Style = fgpo.Style,
-            Color = fgpo.Color,
+            Style = primaryLine?.Style?.StyleCode,
+            Color = primaryLine?.Color?.ColorName,
+            SizeId = primaryLine?.SizeId,
+            SizeCode = primaryLine?.Size?.SizeCode ?? string.Empty,
             OrderQuantity = fgpo.OrderQuantity,
             DeliveryDate = fgpo.DeliveryDate,
             InTransitQty = fgpo.InTransitQty,
@@ -369,7 +380,8 @@ public class FgpoService : IFgpoService
             ProductionVariance = fgpo.ProductionVariance,
             PendingProduction = fgpo.PendingProduction,
             OverproductionQty = fgpo.OverproductionQty,
-            DataOwner = fgpo.DataOwner,
+            DataOwnerId = fgpo.DataOwnerId,
+            DataOwnerName = fgpo.DataOwner?.UserName,
             Remarks = fgpo.Remarks,
             Active = fgpo.Active,
             CreatedAt = fgpo.CreatedAt,

@@ -20,7 +20,11 @@ public class InlineQuality : BaseEntity
     public decimal DefectiveRatePct { get; set; }
     public decimal MaxAllowed { get; set; }
     public string? Result { get; set; }
-    public string? Inspector { get; set; }
+
+    // Inspector: FK a Users (usuario logueado)
+    public int? InspectorId { get; set; }
+    public User? Inspector { get; set; }
+
     public string? ImmediateCorrection { get; set; }
     public string? RootCause { get; set; }
 }

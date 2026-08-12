@@ -117,7 +117,7 @@ public class FourPointService : IFourPointService
             AcceptedQty = dto.AcceptedQty,
             RejectedQty = dto.RejectedQty,
             HoldQty = dto.HoldQty,
-            Inspector = dto.Inspector,
+            InspectorId = dto.InspectorId,
             ReportLink = dto.ReportLink,
             Comments = dto.Comments,
             Active = true,
@@ -172,7 +172,7 @@ public class FourPointService : IFourPointService
         entity.AcceptedQty = dto.AcceptedQty;
         entity.RejectedQty = dto.RejectedQty;
         entity.HoldQty = dto.HoldQty;
-        entity.Inspector = dto.Inspector;
+        entity.InspectorId = dto.InspectorId;
         entity.ReportLink = dto.ReportLink;
         entity.Comments = dto.Comments;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -218,7 +218,7 @@ public class FourPointService : IFourPointService
                 (i.RollNumber != null && i.RollNumber.Contains(term)) ||
                 (i.LotNumber != null && i.LotNumber.Contains(term)) ||
                 (i.ReceivingNumber != null && i.ReceivingNumber.Contains(term)) ||
-                (i.Inspector != null && i.Inspector.Contains(term)) ||
+                (i.Inspector != null && i.Inspector.UserName.Contains(term)) ||
                 (i.Result != null && i.Result.Contains(term)) ||
                 (i.FabricPO != null && i.FabricPO.FabricPONumber.Contains(term)) ||
                 (i.FGPO != null && i.FGPO.FGPONumber.Contains(term)));
@@ -354,7 +354,7 @@ public class FourPointService : IFourPointService
             FGPOId = item.FGPOId,
             FGPONumber = item.FGPO?.FGPONumber ?? string.Empty,
             CustomerName = item.FGPO?.Customer?.Name ?? string.Empty,
-            Supplier = item.FabricPO?.Supplier,
+            Supplier = item.FabricPO?.Supplier?.Name,
             LotNumber = item.LotNumber,
             LotId = item.LotId,
             RollNumber = item.RollNumber,
@@ -371,7 +371,7 @@ public class FourPointService : IFourPointService
             RejectedQty = item.RejectedQty,
             HoldQty = item.HoldQty,
             Result = item.Result,
-            Inspector = item.Inspector,
+            Inspector = item.Inspector?.UserName,
             ReportLink = item.ReportLink,
             Comments = item.Comments,
             Active = item.Active,

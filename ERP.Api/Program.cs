@@ -5,6 +5,7 @@
     using ERP.Api.Repositories;
     using ERP.Api.Services;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.IdentityModel.Tokens;
     using Microsoft.OpenApi.Models;
     using System.Text;
@@ -106,7 +107,6 @@
         options.UseSqlServer(connectionString));
 
     builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-    builder.Services.AddScoped<IProductService, ProductService>();
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IRoleService, RoleService>();
     builder.Services.AddScoped<IPermissionService, PermissionService>();
@@ -124,7 +124,28 @@
     builder.Services.AddScoped<IInternalTestService, InternalTestService>();
     builder.Services.AddScoped<IShadeMatchService, ShadeMatchService>();
     builder.Services.AddScoped<IInlineQualityService, InlineQualityService>();
+    builder.Services.AddScoped<IAqlInspectionService, AqlInspectionService>();
+    builder.Services.AddScoped<IPpSampleService, PpSampleService>();
+    builder.Services.AddScoped<ITopSampleService, TopSampleService>();
+    builder.Services.AddScoped<IProductionReadinessService, ProductionReadinessService>();
+    builder.Services.AddScoped<ICuttingReleaseService, CuttingReleaseService>();
+    builder.Services.AddScoped<ICuttingControlService, CuttingControlService>();
+    builder.Services.AddScoped<ICuttingPanelQcService, CuttingPanelQcService>();
+    builder.Services.AddScoped<IStyleService, StyleService>();
+    builder.Services.AddScoped<IFabricService, FabricService>();
+    builder.Services.AddScoped<IColorService, ColorService>();
+    builder.Services.AddScoped<ISizeService, SizeService>();
+    builder.Services.AddScoped<IComponentService, ComponentService>();
+    builder.Services.AddScoped<IBoxTypeService, BoxTypeService>();
+    builder.Services.AddScoped<IStyleYieldService, StyleYieldService>();
+    builder.Services.AddScoped<IPriceService, PriceService>();
+    builder.Services.AddScoped<IFgpoLineService, FgpoLineService>();
+    builder.Services.AddScoped<ITrimsControlService, TrimsControlService>();
+    builder.Services.AddScoped<ISewingProductionService, SewingProductionService>();
+    builder.Services.AddScoped<IFabricInventoryService, FabricInventoryService>();
+    builder.Services.AddScoped<IFabricReservationService, FabricReservationService>();
     builder.Services.AddScoped<ICatalogService, CatalogService>();
+    builder.Services.AddScoped<ISupplierService, SupplierService>();
 
 
 
@@ -153,7 +174,14 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
         };
     });
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        // Política global: TODA petición requiere un token JWT válido,
+        // salvo los endpoints marcados con [AllowAnonymous] (login, register).
+        options.FallbackPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+    });
 
     var app = builder.Build();
 
@@ -168,7 +196,7 @@ builder.Services.AddAuthentication(options =>
     app.UseCors("AllowAll");
     app.UseAuthentication();
     app.UseAuthorization();
-    app.MapGet("/", () => Results.Redirect("/swagger"));
+    app.MapGet("/", () => Results.Redirect("/swagger")).AllowAnonymous();
     app.MapControllers();
 
     app.Run();

@@ -11,7 +11,8 @@ public class FabricReceivingDto
     public int FGPOId { get; set; }
     public string FGPONumber { get; set; } = null!;
     public string CustomerName { get; set; } = null!;
-    public string? Supplier { get; set; }
+    // Supplier derivado de FabricPO → se resuelve en el servicio
+    public string? SupplierName { get; set; }
     public decimal PackingListQty { get; set; }
     public decimal ActualReceivedQty { get; set; }
     public decimal ReceivingVariance { get; set; }
@@ -22,8 +23,10 @@ public class FabricReceivingDto
     public int MissingRolls { get; set; }
     public string? ReceivingStatus { get; set; }
     public string? WarehouseLocation { get; set; }
-    public string? ReceivedBy { get; set; }
-    public string? DataOwner { get; set; }
+    public int? ReceivedByUserId { get; set; }
+    public string? ReceivedByName { get; set; }
+    public int? DataOwnerId { get; set; }
+    public string? DataOwnerName { get; set; }
     public string? Remarks { get; set; }
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }

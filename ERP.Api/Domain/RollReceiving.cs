@@ -9,7 +9,9 @@ public class RollReceiving : BaseEntity
     public FabricPO? FabricPO { get; set; }
     public int FGPOId { get; set; }
     public Fgpo? FGPO { get; set; }
-    public string? Supplier { get; set; }
+
+    // Proveedor: derivado de FabricPO.SupplierId → se obtiene por JOIN
+
     public string? LotNumber { get; set; }
     public int? LotId { get; set; }
     public Lot? Lot { get; set; }
@@ -26,6 +28,10 @@ public class RollReceiving : BaseEntity
     public string? Condition { get; set; }
     public string? WarehouseLocation { get; set; }
     public DateTime ReceivedDate { get; set; }
-    public string? DataOwner { get; set; }
+
+    // Dueño del dato: FK a Users (usuario logueado)
+    public int? DataOwnerId { get; set; }
+    public User? DataOwner { get; set; }
+
     public string? Comments { get; set; }
 }
