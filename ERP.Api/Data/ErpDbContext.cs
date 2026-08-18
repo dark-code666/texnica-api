@@ -50,6 +50,9 @@ public class ErpDbContext : DbContext
     public DbSet<SewingProduction> SewingProductions => Set<SewingProduction>();
     public DbSet<FabricInventory> FabricInventories => Set<FabricInventory>();
     public DbSet<FabricReservation> FabricReservations => Set<FabricReservation>();
+    public DbSet<PackingControl> PackingControls => Set<PackingControl>();
+    public DbSet<FinishedGood> FinishedGoods => Set<FinishedGood>();
+    public DbSet<ShipmentControl> ShipmentControls => Set<ShipmentControl>();
     public DbSet<Lot> Lots => Set<Lot>();
     public DbSet<CatalogValue> CatalogValues => Set<CatalogValue>();
 
@@ -1401,6 +1404,129 @@ public class ErpDbContext : DbContext
             entity.HasOne(r => r.ApprovedBy)
                   .WithMany()
                   .HasForeignKey(r => r.ApprovedByUserId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PackingControl>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.PackingDate).IsRequired();
+            entity.Property(e => e.QcPassedQty).HasPrecision(18, 4);
+            entity.Property(e => e.ReceivedByPackingQty).HasPrecision(18, 4);
+            entity.Property(e => e.FoldedQty).HasPrecision(18, 4);
+            entity.Property(e => e.PolybaggedQty).HasPrecision(18, 4);
+            entity.Property(e => e.PackedQty).HasPrecision(18, 4);
+            // Columnas calculadas por SQL:
+            // ReadyToShipQty = PackedQty
+            // PackingVariance = PackedQty - QcPassedQty
+            // PendingPacking = MAX(0, QcPassedQty - PackedQty)
+            // OverpackedQty = MAX(0, PackedQty - QcPassedQty)
+            entity.Property(e => e.ReadyToShipQty)
+                  .HasComputedColumnSql("CAST([PackedQty] AS decimal(18,4))");
+            entity.Property(e => e.PackingVariance)
+                  .HasComputedColumnSql("CAST(([PackedQty] - [QcPassedQty]) AS decimal(18,4))");
+            entity.Property(e => e.PendingPacking)
+                  .HasComputedColumnSql("CAST((CASE WHEN [QcPassedQty] - [PackedQty] > 0 THEN [QcPassedQty] - [PackedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.OverpackedQty)
+                  .HasComputedColumnSql("CAST((CASE WHEN [PackedQty] - [QcPassedQty] > 0 THEN [PackedQty] - [QcPassedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => e.FGPOId);
+            entity.HasIndex(e => e.PackingDate);
+
+            entity.HasOne(p => p.FGPO)
+                  .WithMany()
+                  .HasForeignKey(p => p.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(p => p.ResponsiblePerson)
+                  .WithMany()
+                  .HasForeignKey(p => p.ResponsiblePersonId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<FinishedGood>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ReceiptDate).IsRequired();
+            entity.Property(e => e.PackedQty).HasPrecision(18, 4);
+            entity.Property(e => e.WarehouseReceived).HasPrecision(18, 4);
+            entity.Property(e => e.ReservedForShipment).HasPrecision(18, 4);
+            entity.Property(e => e.LoadedQty).HasPrecision(18, 4);
+            entity.Property(e => e.ShippedQty).HasPrecision(18, 4);
+            // Columnas calculadas por SQL:
+            // ReadyToShipQty = MAX(0, WarehouseReceived - ReservedForShipment - LoadedQty - ShippedQty)
+            // WarehouseBalance = MAX(0, WarehouseReceived - LoadedQty - ShippedQty)
+            entity.Property(e => e.ReadyToShipQty)
+                  .HasComputedColumnSql("CAST((CASE WHEN [WarehouseReceived] - [ReservedForShipment] - [LoadedQty] - [ShippedQty] > 0 THEN [WarehouseReceived] - [ReservedForShipment] - [LoadedQty] - [ShippedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.WarehouseBalance)
+                  .HasComputedColumnSql("CAST((CASE WHEN [WarehouseReceived] - [LoadedQty] - [ShippedQty] > 0 THEN [WarehouseReceived] - [LoadedQty] - [ShippedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.WarehouseLocation).HasMaxLength(150);
+            entity.Property(e => e.Status).HasMaxLength(100);
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => e.FGPOId);
+            entity.HasIndex(e => e.ReceiptDate);
+            entity.HasIndex(e => e.Status);
+
+            entity.HasOne(f => f.FGPO)
+                  .WithMany()
+                  .HasForeignKey(f => f.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(f => f.DataOwner)
+                  .WithMany()
+                  .HasForeignKey(f => f.DataOwnerId)
+                  .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ShipmentControl>(entity =>
+        {
+            entity.HasKey(e => e.ID);
+            entity.Property(e => e.ShipmentNumber).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.PlannedQty).HasPrecision(18, 4);
+            entity.Property(e => e.ActualLoadedQty).HasPrecision(18, 4);
+            entity.Property(e => e.InTransitQty).HasPrecision(18, 4);
+            entity.Property(e => e.CustomerReceivedQty).HasPrecision(18, 4);
+            entity.Property(e => e.TotalShippedQty).HasPrecision(18, 4);
+            // Columnas calculadas por SQL:
+            // ShipmentVariance = TotalShippedQty - PlannedQty
+            // PendingToShip    = MAX(0, PlannedQty - TotalShippedQty)
+            // OvershipmentQty  = MAX(0, TotalShippedQty - PlannedQty)
+            entity.Property(e => e.ShipmentVariance)
+                  .HasComputedColumnSql("CAST(([TotalShippedQty] - [PlannedQty]) AS decimal(18,4))");
+            entity.Property(e => e.PendingToShip)
+                  .HasComputedColumnSql("CAST((CASE WHEN [PlannedQty] - [TotalShippedQty] > 0 THEN [PlannedQty] - [TotalShippedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.OvershipmentQty)
+                  .HasComputedColumnSql("CAST((CASE WHEN [TotalShippedQty] - [PlannedQty] > 0 THEN [TotalShippedQty] - [PlannedQty] ELSE 0 END) AS decimal(18,4))");
+            entity.Property(e => e.ContainerType).HasMaxLength(100);
+            entity.Property(e => e.ContainerNumber).HasMaxLength(100);
+            entity.Property(e => e.BookingNumber).HasMaxLength(100);
+            entity.Property(e => e.Destination).HasMaxLength(200);
+            entity.Property(e => e.ShipmentStatus).HasMaxLength(100);
+            entity.Property(e => e.PackingList).HasMaxLength(300);
+            entity.Property(e => e.InvoiceNumber).HasMaxLength(100);
+            entity.Property(e => e.LoadPlan).HasMaxLength(500);
+            entity.Property(e => e.Remarks).HasMaxLength(1000);
+            entity.Property(e => e.Active).HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => e.ShipmentNumber);
+            entity.HasIndex(e => e.FGPOId);
+            entity.HasIndex(e => e.ShipmentStatus);
+
+            entity.HasOne(s => s.FGPO)
+                  .WithMany()
+                  .HasForeignKey(s => s.FGPOId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(s => s.DataOwner)
+                  .WithMany()
+                  .HasForeignKey(s => s.DataOwnerId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 

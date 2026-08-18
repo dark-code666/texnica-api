@@ -111,6 +111,50 @@ public class FabricService : IFabricService
         return items.Select(ToDto);
     }
 
+    public async Task<PagedResultDto<FabricDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.Fabrics.Where(f => f.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(f => f.FabricName.Contains(term)
+                || (f.FabricReference != null && f.FabricReference.Contains(term))
+                || (f.Color != null && f.Color.Contains(term))
+                || (f.Content != null && f.Content.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<Fabric> orderedQuery = (sortByLower, descending) switch
+        {
+            ("fabricname", false) => query.OrderBy(f => f.FabricName),
+            ("fabricname", true) => query.OrderByDescending(f => f.FabricName),
+            ("createdat", false) => query.OrderBy(f => f.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(f => f.CreatedAt),
+            _ => query.OrderBy(f => f.FabricName),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<FabricDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static FabricDto ToDto(Fabric item) => new()
     {
         ID = item.ID,

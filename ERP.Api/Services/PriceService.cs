@@ -126,6 +126,59 @@ public class PriceService : IPriceService
             throw new Exception("El Size seleccionado no es válido.");
     }
 
+    public async Task<PagedResultDto<PriceDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.Prices
+            .Include(p => p.Style)
+            .Include(p => p.Color)
+            .Include(p => p.Size)
+            .Where(p => p.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(p =>
+                (p.Style != null && p.Style.StyleCode.Contains(term)) ||
+                (p.Color != null && p.Color.ColorName.Contains(term)) ||
+                (p.Size != null && p.Size.SizeCode.Contains(term)) ||
+                (p.Sku != null && p.Sku.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<Price> orderedQuery = (sortByLower, descending) switch
+        {
+            ("stylecode", false) => query.OrderBy(p => p.Style!.StyleCode),
+            ("stylecode", true) => query.OrderByDescending(p => p.Style!.StyleCode),
+            ("sku", false) => query.OrderBy(p => p.Sku),
+            ("sku", true) => query.OrderByDescending(p => p.Sku),
+            ("unitprice", false) => query.OrderBy(p => p.UnitPrice),
+            ("unitprice", true) => query.OrderByDescending(p => p.UnitPrice),
+            ("createdat", false) => query.OrderBy(p => p.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(p => p.CreatedAt),
+            _ => query.OrderBy(p => p.Style!.StyleCode),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<PriceDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static PriceDto ToDto(Price item) => new()
     {
         ID = item.ID,

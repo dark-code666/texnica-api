@@ -105,7 +105,7 @@ public class FourPointService : IFourPointService
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             RollNumber = dto.RollNumber,
             Width = dto.Width,
             InspectedLength = dto.InspectedLength,
@@ -160,7 +160,7 @@ public class FourPointService : IFourPointService
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.RollNumber = dto.RollNumber;
         entity.Width = dto.Width;
         entity.InspectedLength = dto.InspectedLength;

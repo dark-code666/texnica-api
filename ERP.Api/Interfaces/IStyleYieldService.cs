@@ -10,4 +10,5 @@ public interface IStyleYieldService
     Task<bool> UpdateAsync(int id, UpdateStyleYieldDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<StyleYieldDto>> GetByStyleAsync(int styleId);
+    Task<PagedResultDto<StyleYieldDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder);
 }

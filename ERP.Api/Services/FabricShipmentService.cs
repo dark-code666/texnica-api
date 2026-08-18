@@ -118,7 +118,7 @@ public class FabricShipmentService : IFabricShipmentService
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             RollQty = dto.RollQty,
             ShippedQuantity = dto.ShippedQuantity,
             UOM = dto.UOM,
@@ -178,7 +178,7 @@ public class FabricShipmentService : IFabricShipmentService
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.RollQty = dto.RollQty;
         entity.ShippedQuantity = dto.ShippedQuantity;
         entity.UOM = dto.UOM;

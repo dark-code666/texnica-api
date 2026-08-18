@@ -8,6 +8,7 @@ using ERP.Api.Dtos.User;
 public interface IUserService
 {
     Task<AuthResponseDto> RegisterAsync(RegisterUserDto registerDto);
+    Task<AuthResponseDto> CreateUserAsync(RegisterUserDto registerDto);
     Task<AuthResponseDto> LoginAsync(LoginUserDto loginDto);
     Task<bool> AssignRoleToUserAsync(int userId, int roleId);
     Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);

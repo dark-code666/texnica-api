@@ -62,6 +62,9 @@ public class FgpoLineService : IFgpoLineService
         if (exists)
             throw new Exception("Esa combinación Style/Color/Size ya existe en el FGPO.");
 
+        // Si no viene precio, se toma el del catálogo Prices (Style+Color+Size)
+        var unitPrice = dto.UnitPrice ?? await ResolvePriceAsync(dto.StyleId, dto.ColorId, dto.SizeId);
+
         var entity = new FgpoLine
         {
             FgpoId = dto.FgpoId,
@@ -69,7 +72,7 @@ public class FgpoLineService : IFgpoLineService
             ColorId = dto.ColorId,
             SizeId = dto.SizeId,
             Quantity = dto.Quantity,
-            UnitPrice = dto.UnitPrice,
+            UnitPrice = unitPrice,
             Active = true,
             CreatedAt = DateTime.UtcNow,
         };
@@ -103,7 +106,8 @@ public class FgpoLineService : IFgpoLineService
         entity.ColorId = dto.ColorId;
         entity.SizeId = dto.SizeId;
         entity.Quantity = dto.Quantity;
-        entity.UnitPrice = dto.UnitPrice;
+        // Si no viene precio, se toma el del catálogo Prices
+        entity.UnitPrice = dto.UnitPrice ?? await ResolvePriceAsync(dto.StyleId, dto.ColorId, dto.SizeId);
         entity.UpdatedAt = DateTime.UtcNow;
 
         _context.FgpoLines.Update(entity);
@@ -134,6 +138,66 @@ public class FgpoLineService : IFgpoLineService
             throw new Exception("El Color seleccionado no es válido.");
         if (await _context.Sizes.FirstOrDefaultAsync(s => s.ID == sizeId && s.Active) is null)
             throw new Exception("El Size seleccionado no es válido.");
+    }
+
+    // Toma el UnitPrice del catálogo Prices (Style+Color+Size) si existe
+    private async Task<decimal?> ResolvePriceAsync(int styleId, int colorId, int sizeId)
+    {
+        var price = await _context.Prices
+            .FirstOrDefaultAsync(p => p.Active && p.StyleId == styleId && p.ColorId == colorId && p.SizeId == sizeId);
+        return price?.UnitPrice;
+    }
+
+    public async Task<PagedResultDto<FgpoLineDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.FgpoLines
+            .Include(l => l.Fgpo).ThenInclude(f => f!.Customer)
+            .Include(l => l.Style)
+            .Include(l => l.Color)
+            .Include(l => l.Size)
+            .Where(l => l.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(l =>
+                (l.Fgpo != null && l.Fgpo.FGPONumber.Contains(term)) ||
+                (l.Style != null && l.Style.StyleCode.Contains(term)) ||
+                (l.Color != null && l.Color.ColorName.Contains(term)) ||
+                (l.Size != null && l.Size.SizeCode.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<FgpoLine> orderedQuery = (sortByLower, descending) switch
+        {
+            ("stylecode", false) => query.OrderBy(l => l.Style!.StyleCode),
+            ("stylecode", true) => query.OrderByDescending(l => l.Style!.StyleCode),
+            ("quantity", false) => query.OrderBy(l => l.Quantity),
+            ("quantity", true) => query.OrderByDescending(l => l.Quantity),
+            ("createdat", false) => query.OrderBy(l => l.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(l => l.CreatedAt),
+            _ => query.OrderBy(l => l.Style!.StyleCode),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<FgpoLineDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
     }
 
     private static FgpoLineDto ToDto(FgpoLine item) => new()

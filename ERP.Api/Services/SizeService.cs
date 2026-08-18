@@ -99,6 +99,49 @@ public class SizeService : ISizeService
         return items.Select(ToDto);
     }
 
+    public async Task<PagedResultDto<SizeDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.Sizes.Where(s => s.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(s => s.SizeCode.Contains(term));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<Size> orderedQuery = (sortByLower, descending) switch
+        {
+            ("sizecode", false) => query.OrderBy(s => s.SizeCode),
+            ("sizecode", true) => query.OrderByDescending(s => s.SizeCode),
+            ("sortorder", false) => query.OrderBy(s => s.SortOrder),
+            ("sortorder", true) => query.OrderByDescending(s => s.SortOrder),
+            ("createdat", false) => query.OrderBy(s => s.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(s => s.CreatedAt),
+            _ => query.OrderBy(s => s.SortOrder),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<SizeDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static SizeDto ToDto(Size item) => new()
     {
         ID = item.ID,

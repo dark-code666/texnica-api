@@ -84,7 +84,7 @@ public class InternalTestService : IInternalTestService
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             Color = dto.Color,
             ActualWidth = dto.ActualWidth,
             SpecimenAreaCm2 = dto.SpecimenAreaCm2,
@@ -142,7 +142,7 @@ public class InternalTestService : IInternalTestService
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.Color = dto.Color;
         entity.ActualWidth = dto.ActualWidth;
         entity.SpecimenAreaCm2 = dto.SpecimenAreaCm2;

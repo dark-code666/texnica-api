@@ -77,7 +77,7 @@ public class RollReceivingService : IRollReceivingService
             FGPOId = receiving.FGPOId,
             Color = receiving.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             RollNumber = dto.RollNumber,
             SupplierRollNumber = dto.SupplierRollNumber,
             GrossWeight = dto.GrossWeight,
@@ -133,7 +133,7 @@ public class RollReceivingService : IRollReceivingService
         entity.FGPOId = receiving.FGPOId;
         entity.Color = receiving.FGPO?.FgpoLines?.FirstOrDefault(l => l.Active)?.Color?.ColorName;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.RollNumber = dto.RollNumber;
         entity.SupplierRollNumber = dto.SupplierRollNumber;
         entity.GrossWeight = dto.GrossWeight;

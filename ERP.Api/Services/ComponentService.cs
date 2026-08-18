@@ -99,6 +99,47 @@ public class ComponentService : IComponentService
         return items.Select(ToDto);
     }
 
+    public async Task<PagedResultDto<ComponentDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.Components.Where(c => c.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c => c.ComponentCode.Contains(term) || (c.Description != null && c.Description.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<Component> orderedQuery = (sortByLower, descending) switch
+        {
+            ("componentcode", false) => query.OrderBy(c => c.ComponentCode),
+            ("componentcode", true) => query.OrderByDescending(c => c.ComponentCode),
+            ("createdat", false) => query.OrderBy(c => c.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(c => c.CreatedAt),
+            _ => query.OrderBy(c => c.ComponentCode),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<ComponentDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static ComponentDto ToDto(Component item) => new()
     {
         ID = item.ID,

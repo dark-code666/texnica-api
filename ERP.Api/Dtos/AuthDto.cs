@@ -4,13 +4,20 @@ public class RegisterUserDto
 {
     public string UserName { get; set; } = null!;
     public string UserEmail { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    // Password en claro (compatibilidad) o el descifrado de EncryptedPassword.
+    // Nullable: cuando el cliente cifra, este campo no se envía.
+    public string? Password { get; set; }
+    // Password cifrado en el navegador (RSA-OAEP). Si viene, se descifra en el servidor.
+    public string? EncryptedPassword { get; set; }
 }
 
 public class LoginUserDto
 {
     public string UserName { get; set; } = null!;
-    public string Password { get; set; } = null!;
+    // Password en claro (compatibilidad) o el descifrado de EncryptedPassword.
+    public string? Password { get; set; }
+    // Password cifrado en el navegador (RSA-OAEP). Si viene, se descifra en el servidor.
+    public string? EncryptedPassword { get; set; }
 }
 
 public class UserDto

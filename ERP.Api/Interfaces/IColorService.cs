@@ -10,4 +10,5 @@ public interface IColorService
     Task<bool> UpdateAsync(int id, UpdateColorDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<ColorDto>> SearchAsync(string? term);
+    Task<PagedResultDto<ColorDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder);
 }

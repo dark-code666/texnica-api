@@ -99,6 +99,47 @@ public class ColorService : IColorService
         return items.Select(ToDto);
     }
 
+    public async Task<PagedResultDto<ColorDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.Colors.Where(c => c.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(c => c.ColorName.Contains(term) || (c.DyeMethod != null && c.DyeMethod.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<Color> orderedQuery = (sortByLower, descending) switch
+        {
+            ("colorname", false) => query.OrderBy(c => c.ColorName),
+            ("colorname", true) => query.OrderByDescending(c => c.ColorName),
+            ("createdat", false) => query.OrderBy(c => c.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(c => c.CreatedAt),
+            _ => query.OrderBy(c => c.ColorName),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<ColorDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static ColorDto ToDto(Color item) => new()
     {
         ID = item.ID,

@@ -10,4 +10,5 @@ public interface IPriceService
     Task<bool> UpdateAsync(int id, UpdatePriceDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<PriceDto>> GetByStyleAsync(int styleId);
+    Task<PagedResultDto<PriceDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder);
 }

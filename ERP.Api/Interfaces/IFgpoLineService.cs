@@ -10,4 +10,5 @@ public interface IFgpoLineService
     Task<bool> UpdateAsync(int id, UpdateFgpoLineDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<FgpoLineDto>> GetByFgpoAsync(int fgpoId);
+    Task<PagedResultDto<FgpoLineDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder);
 }

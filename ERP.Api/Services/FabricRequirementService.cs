@@ -75,9 +75,9 @@ public class FabricRequirementService : IFabricRequirementService
         if (fgpo is null)
             throw new Exception("La FGPO seleccionada no es válida.");
 
-        // Cálculos en el backend (consistente con la arquitectura del proyecto)
+        // Cálculos en el backend (Allowance como porcentaje: /100)
         var grossRequirement = dto.OrderQuantity * dto.ApprovedYield;
-        var allowanceQty = grossRequirement * dto.AllowancePercentage;  
+        var allowanceQty = grossRequirement * dto.AllowancePercentage / 100m;
         var netPurchaseRequirement = Math.Max(grossRequirement + allowanceQty - dto.AvailableInventory, 0);
 
         var entity = new FabricRequirement

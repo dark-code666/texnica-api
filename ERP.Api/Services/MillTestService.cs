@@ -91,7 +91,7 @@ public class MillTestService : IMillTestService
             FabricPOId = dto.FabricPOId,
             FGPOId = dto.FGPOId,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             Color = dto.Color,
             RollQty = dto.RollQty,
             ActualWidth = dto.ActualWidth,
@@ -149,7 +149,7 @@ public class MillTestService : IMillTestService
         entity.FabricPOId = dto.FabricPOId;
         entity.FGPOId = dto.FGPOId;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.Color = dto.Color;
         entity.RollQty = dto.RollQty;
         entity.ActualWidth = dto.ActualWidth;

@@ -25,6 +25,17 @@ public class StyleYieldsController : ControllerBase
     [HttpGet("style/{styleId}")]
     public async Task<IActionResult> GetByStyle(int styleId) => Ok(await _service.GetByStyleAsync(styleId));
 
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null)
+    {
+        return Ok(await _service.GetPagedAsync(page, pageSize, search, sortBy, sortOrder));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateStyleYieldDto dto)
     {

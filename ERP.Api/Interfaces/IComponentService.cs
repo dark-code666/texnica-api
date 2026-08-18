@@ -10,4 +10,5 @@ public interface IComponentService
     Task<bool> UpdateAsync(int id, UpdateComponentDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<ComponentDto>> SearchAsync(string? term);
+    Task<PagedResultDto<ComponentDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder);
 }

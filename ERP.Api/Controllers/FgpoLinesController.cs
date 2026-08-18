@@ -25,6 +25,17 @@ public class FgpoLinesController : ControllerBase
     [HttpGet("fgpo/{fgpoId}")]
     public async Task<IActionResult> GetByFgpo(int fgpoId) => Ok(await _service.GetByFgpoAsync(fgpoId));
 
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null)
+    {
+        return Ok(await _service.GetPagedAsync(page, pageSize, search, sortBy, sortOrder));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateFgpoLineDto dto)
     {

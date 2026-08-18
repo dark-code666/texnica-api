@@ -25,6 +25,17 @@ public class StylesController : ControllerBase
     [HttpGet("search")]
     public async Task<IActionResult> Search([FromQuery] string? term) => Ok(await _service.SearchAsync(term));
 
+    [HttpGet("paged")]
+    public async Task<IActionResult> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] string? sortOrder = null)
+    {
+        return Ok(await _service.GetPagedAsync(page, pageSize, search, sortBy, sortOrder));
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateStyleDto dto)
     {

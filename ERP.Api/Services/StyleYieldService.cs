@@ -118,6 +118,57 @@ public class StyleYieldService : IStyleYieldService
             throw new Exception("El Component seleccionado no es válido.");
     }
 
+    public async Task<PagedResultDto<StyleYieldDto>> GetPagedAsync(int page, int pageSize, string? search, string? sortBy, string? sortOrder)
+    {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        if (pageSize > 100) pageSize = 100;
+
+        var query = _context.StyleYields
+            .Include(y => y.Style)
+            .Include(y => y.Component)
+            .Where(y => y.Active);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim();
+            query = query.Where(y =>
+                (y.Style != null && y.Style.StyleCode.Contains(term)) ||
+                (y.Component != null && y.Component.ComponentCode.Contains(term)) ||
+                (y.Notes != null && y.Notes.Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var sortByLower = sortBy?.ToLowerInvariant();
+        var descending = sortOrder?.ToLowerInvariant() == "desc";
+
+        IQueryable<StyleYield> orderedQuery = (sortByLower, descending) switch
+        {
+            ("stylecode", false) => query.OrderBy(y => y.Style!.StyleCode),
+            ("stylecode", true) => query.OrderByDescending(y => y.Style!.StyleCode),
+            ("componentcode", false) => query.OrderBy(y => y.Component!.ComponentCode),
+            ("componentcode", true) => query.OrderByDescending(y => y.Component!.ComponentCode),
+            ("yieldquoted", false) => query.OrderBy(y => y.YieldQuoted),
+            ("yieldquoted", true) => query.OrderByDescending(y => y.YieldQuoted),
+            ("createdat", false) => query.OrderBy(y => y.CreatedAt),
+            ("createdat", true) => query.OrderByDescending(y => y.CreatedAt),
+            _ => query.OrderBy(y => y.Style!.StyleCode),
+        };
+
+        var items = await orderedQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return new PagedResultDto<StyleYieldDto>
+        {
+            Items = items.Select(ToDto),
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize,
+            TotalPages = totalPages,
+        };
+    }
+
     private static StyleYieldDto ToDto(StyleYield item) => new()
     {
         ID = item.ID,

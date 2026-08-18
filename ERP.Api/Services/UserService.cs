@@ -38,7 +38,49 @@ public class UserService : IUserService
         if (userExists)
             throw new Exception("El correo electrónico ya está registrado.");
 
-        // Crear el nuevo usuario con contraseña por defecto
+        // Auto-registro: el usuario crea SU propia contraseña
+        if (string.IsNullOrWhiteSpace(registerDto.Password) || registerDto.Password.Length < 6)
+            throw new Exception("La contraseña debe tener al menos 6 caracteres.");
+
+        var user = new User
+        {
+            UserName = registerDto.UserName,
+            UserEmail = registerDto.UserEmail,
+            Password = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+            Active = true,
+            MustChangePassword = false
+        };
+
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Generar Token
+        var token = GenerateJwtToken(user);
+
+        return new AuthResponseDto
+        {
+            Token = token,
+            User = new ERP.Api.Dtos.UserDto
+            {
+                ID = user.ID,
+                UserName = user.UserName,
+                UserEmail = user.UserEmail,
+                Active = user.Active,
+                MustChangePassword = user.MustChangePassword
+            }
+        };
+    }
+
+    /// <summary>
+    /// Creación desde el sistema (admin): se asigna la contraseña por defecto (inicio)
+    /// y se fuerza el cambio en el primer login.
+    /// </summary>
+    public async Task<AuthResponseDto> CreateUserAsync(RegisterUserDto registerDto)
+    {
+        var userExists = await _context.Users.AnyAsync(u => u.UserEmail == registerDto.UserEmail);
+        if (userExists)
+            throw new Exception("El correo electrónico ya está registrado.");
+
         var user = new User
         {
             UserName = registerDto.UserName,
@@ -51,7 +93,6 @@ public class UserService : IUserService
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        // Generar Token
         var token = GenerateJwtToken(user);
 
         return new AuthResponseDto

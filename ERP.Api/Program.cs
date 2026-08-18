@@ -144,9 +144,12 @@
     builder.Services.AddScoped<ISewingProductionService, SewingProductionService>();
     builder.Services.AddScoped<IFabricInventoryService, FabricInventoryService>();
     builder.Services.AddScoped<IFabricReservationService, FabricReservationService>();
+    builder.Services.AddScoped<IPackingControlService, PackingControlService>();
+    builder.Services.AddScoped<IFinishedGoodsService, FinishedGoodsService>();
+    builder.Services.AddScoped<IShipmentControlService, ShipmentControlService>();
     builder.Services.AddScoped<ICatalogService, CatalogService>();
     builder.Services.AddScoped<ISupplierService, SupplierService>();
-
+    builder.Services.AddSingleton<CryptoService>();
 
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
@@ -185,6 +188,14 @@ builder.Services.AddAuthentication(options =>
 
     var app = builder.Build();
 
+    // API Key: toda petición a /api/** debe incluir el header X-API-Key
+    var apiKey = Environment.GetEnvironmentVariable("API_KEY")
+                 ?? builder.Configuration["ApiKey"];
+    if (string.IsNullOrWhiteSpace(apiKey))
+    {
+        throw new InvalidOperationException("API_KEY no está configurado.");
+    }
+
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -194,6 +205,24 @@ builder.Services.AddAuthentication(options =>
 
     app.UseHttpsRedirection();
     app.UseCors("AllowAll");
+
+    // API Key: toda petición a /api/** debe incluir el header X-API-Key.
+    // Se deja pasar el OPTIONS (preflight CORS) que el navegador envía sin headers custom.
+    app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api") && !HttpMethods.IsOptions(context.Request.Method))
+        {
+            var provided = context.Request.Headers["X-API-Key"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(provided) || provided != apiKey)
+            {
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsJsonAsync(new { message = "API Key inválida o no proporcionada." });
+                return;
+            }
+        }
+        await next();
+    });
+
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapGet("/", () => Results.Redirect("/swagger")).AllowAnonymous();

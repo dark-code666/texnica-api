@@ -97,7 +97,7 @@ public class MillProductionService : IMillProductionService
             PlannedQuantity = dto.PlannedQuantity,
             ProducedQuantity = dto.ProducedQuantity,
             LotNumber = dto.LotNumber,
-            LotId = lot?.ID,
+            Lot = lot,
             RollQuantity = dto.RollQuantity,
             YardageOrQty = dto.YardageOrQty,
             Weight = dto.Weight,
@@ -113,7 +113,14 @@ public class MillProductionService : IMillProductionService
         };
 
         _context.MillProductions.Add(entity);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new Exception($"Error al guardar: {ex.InnerException?.Message ?? ex.Message}");
+        }
 
         await _context.Entry(entity).Reference(m => m.FabricPO).LoadAsync();
         await _context.Entry(entity).Reference(m => m.FGPO).Query()
@@ -151,7 +158,7 @@ public class MillProductionService : IMillProductionService
         entity.PlannedQuantity = dto.PlannedQuantity;
         entity.ProducedQuantity = dto.ProducedQuantity;
         entity.LotNumber = dto.LotNumber;
-        entity.LotId = lot?.ID;
+        entity.Lot = lot;
         entity.RollQuantity = dto.RollQuantity;
         entity.YardageOrQty = dto.YardageOrQty;
         entity.Weight = dto.Weight;
@@ -165,7 +172,14 @@ public class MillProductionService : IMillProductionService
         entity.UpdatedAt = DateTime.UtcNow;
 
         _context.MillProductions.Update(entity);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new Exception($"Error al guardar: {ex.InnerException?.Message ?? ex.Message}");
+        }
 
         return true;
     }
@@ -192,8 +206,9 @@ public class MillProductionService : IMillProductionService
         if (string.IsNullOrWhiteSpace(lotNumber))
             return null;
 
-        var lot = await _context.Lots
-            .FirstOrDefaultAsync(l => l.LotNumber == lotNumber && l.Active);
+        // Buscar por LotNumber SIN filtrar Active: si existiera un lote inactivo
+        // con el mismo número, el índice único lo bloquearía al intentar crear otro.
+        var lot = await _context.Lots.FirstOrDefaultAsync(l => l.LotNumber == lotNumber);
         if (lot is null)
         {
             lot = new Lot
@@ -210,6 +225,9 @@ public class MillProductionService : IMillProductionService
         else
         {
             lot.ProducedQuantity = producedQuantity;
+            lot.FabricPOId = fabricPOId;
+            lot.FGPOId = fgpoId;
+            lot.Active = true;
         }
 
         return lot;

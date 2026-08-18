@@ -1960,6 +1960,94 @@ namespace ERP.Api.Migrations
                     b.ToTable("FgpoLines");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.FinishedGood", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("LoadedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("PackedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ReadyToShipQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [WarehouseReceived] - [ReservedForShipment] - [LoadedQty] - [ShippedQty] > 0 THEN [WarehouseReceived] - [ReservedForShipment] - [LoadedQty] - [ShippedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<DateTime>("ReceiptDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("ReservedForShipment")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ShippedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("WarehouseBalance")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [WarehouseReceived] - [LoadedQty] - [ShippedQty] > 0 THEN [WarehouseReceived] - [LoadedQty] - [ShippedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<string>("WarehouseLocation")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("WarehouseReceived")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("ReceiptDate");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("FinishedGoods");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.FourPointInspection", b =>
                 {
                     b.Property<int>("ID")
@@ -2627,6 +2715,103 @@ namespace ERP.Api.Migrations
                     b.HasIndex("FGPOId", "FabricPOId");
 
                     b.ToTable("MillTests");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.PackingControl", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("FoldedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int>("FullCartons")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("OverpackedQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [PackedQty] - [QcPassedQty] > 0 THEN [PackedQty] - [QcPassedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<decimal>("PackedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime>("PackingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PackingVariance")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST(([PackedQty] - [QcPassedQty]) AS decimal(18,4))");
+
+                    b.Property<int>("PartialCartons")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PcsPerCarton")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PendingPacking")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [QcPassedQty] - [PackedQty] > 0 THEN [QcPassedQty] - [PackedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<decimal>("PolybaggedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("QcPassedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<decimal>("ReadyToShipQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST([PackedQty] AS decimal(18,4))");
+
+                    b.Property<decimal>("ReceivedByPackingQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ResponsiblePersonId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("PackingDate");
+
+                    b.HasIndex("ResponsiblePersonId");
+
+                    b.ToTable("PackingControls");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Permission", b =>
@@ -3339,6 +3524,137 @@ namespace ERP.Api.Migrations
                     b.HasIndex("OverallResult");
 
                     b.ToTable("ShadeMatches");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.ShipmentControl", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<decimal>("ActualLoadedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("ActualLoadingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("BookingNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ContainerNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ContainerType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<decimal>("CustomerReceivedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<int?>("DataOwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Destination")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("ETA")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ETD")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FGPOId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("InTransitQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("InvoiceNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LoadPlan")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("OvershipmentQty")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [TotalShippedQty] - [PlannedQty] > 0 THEN [TotalShippedQty] - [PlannedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<string>("PackingList")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<decimal>("PendingToShip")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST((CASE WHEN [PlannedQty] - [TotalShippedQty] > 0 THEN [PlannedQty] - [TotalShippedQty] ELSE 0 END) AS decimal(18,4))");
+
+                    b.Property<DateTime?>("PlannedLoadingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("PlannedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ShipmentNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ShipmentStatus")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal>("ShipmentVariance")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("CAST(([TotalShippedQty] - [PlannedQty]) AS decimal(18,4))");
+
+                    b.Property<decimal>("TotalShippedQty")
+                        .HasPrecision(18, 4)
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DataOwnerId");
+
+                    b.HasIndex("FGPOId");
+
+                    b.HasIndex("ShipmentNumber");
+
+                    b.HasIndex("ShipmentStatus");
+
+                    b.ToTable("ShipmentControls");
                 });
 
             modelBuilder.Entity("ERP.Api.Domain.Size", b =>
@@ -4193,6 +4509,24 @@ namespace ERP.Api.Migrations
                     b.Navigation("Style");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.FinishedGood", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataOwner");
+
+                    b.Navigation("FGPO");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.FourPointInspection", b =>
                 {
                     b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
@@ -4376,6 +4710,24 @@ namespace ERP.Api.Migrations
                     b.Navigation("TestedBy");
                 });
 
+            modelBuilder.Entity("ERP.Api.Domain.PackingControl", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERP.Api.Domain.User", "ResponsiblePerson")
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("FGPO");
+
+                    b.Navigation("ResponsiblePerson");
+                });
+
             modelBuilder.Entity("ERP.Api.Domain.PpSample", b =>
                 {
                     b.HasOne("ERP.Api.Domain.User", "ApprovedBy")
@@ -4545,6 +4897,24 @@ namespace ERP.Api.Migrations
                         .HasForeignKey("FGPOId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("FGPO");
+                });
+
+            modelBuilder.Entity("ERP.Api.Domain.ShipmentControl", b =>
+                {
+                    b.HasOne("ERP.Api.Domain.User", "DataOwner")
+                        .WithMany()
+                        .HasForeignKey("DataOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERP.Api.Domain.Fgpo", "FGPO")
+                        .WithMany()
+                        .HasForeignKey("FGPOId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DataOwner");
 
                     b.Navigation("FGPO");
                 });

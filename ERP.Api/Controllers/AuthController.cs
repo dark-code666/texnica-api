@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ERP.Api.Dtos;
 using ERP.Api.Interfaces;
+using ERP.Api.Services;
 
 namespace ERP.Api.Controllers;
 
@@ -12,10 +13,30 @@ namespace ERP.Api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly CryptoService _crypto;
 
-    public AuthController(IUserService userService)
+    public AuthController(IUserService userService, CryptoService crypto)
     {
         _userService = userService;
+        _crypto = crypto;
+    }
+
+    // Clave pública RSA para que el navegador cifre el password antes de enviarlo
+    [AllowAnonymous]
+    [HttpGet("public-key")]
+    public IActionResult GetPublicKey() => Ok(new { publicKey = _crypto.PublicKeyPem });
+
+    // Descifra el password si el cliente lo envió cifrado (EncryptedPassword)
+    private void ResolvePassword(LoginUserDto dto)
+    {
+        if (!string.IsNullOrWhiteSpace(dto.EncryptedPassword))
+            dto.Password = _crypto.DecryptPassword(dto.EncryptedPassword);
+    }
+
+    private void ResolvePassword(RegisterUserDto dto)
+    {
+        if (!string.IsNullOrWhiteSpace(dto.EncryptedPassword))
+            dto.Password = _crypto.DecryptPassword(dto.EncryptedPassword);
     }
 
     [AllowAnonymous]
@@ -24,7 +45,25 @@ public class AuthController : ControllerBase
     {
         try
         {
+            ResolvePassword(dto);
             var response = await _userService.RegisterAsync(dto);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // Creación desde el sistema (admin): asigna la contraseña por defecto (inicio)
+    // y fuerza el cambio en el primer login.
+    [HttpPost("users")]
+    public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto dto)
+    {
+        try
+        {
+            ResolvePassword(dto);
+            var response = await _userService.CreateUserAsync(dto);
             return Ok(response);
         }
         catch (Exception ex)
@@ -39,6 +78,7 @@ public class AuthController : ControllerBase
     {
         try
         {
+            ResolvePassword(dto);
             var response = await _userService.LoginAsync(dto);
             return Ok(response);
         }
