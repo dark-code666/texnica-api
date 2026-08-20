@@ -45,19 +45,13 @@ public class DesignTimeErpDbContextFactory : IDesignTimeDbContextFactory<ErpDbCo
         var dbPort = GetEnv("DB_PORT");
 
 
-        Console.WriteLine(dbServer);
-        Console.WriteLine(dbName);
-        Console.WriteLine(dbUser);
-        Console.WriteLine(dbPassword);
-        Console.WriteLine(dbPort);
-
         var serverAddress = string.IsNullOrWhiteSpace(dbPort)
             ? dbServer
             : $"{dbServer},{dbPort}";
 
         var connectionString = string.IsNullOrWhiteSpace(dbUser) || string.IsNullOrWhiteSpace(dbPassword)
-            ? $"Server={serverAddress};Database={dbName};Integrated Security=True;TrustServerCertificate=True;"
-            : $"Server={serverAddress};Database={dbName};User Id={dbUser};Password={dbPassword};Encrypt=True;TrustServerCertificate=True;";
+            ? $"Server=tcp:{serverAddress};Database={dbName};Integrated Security=True;TrustServerCertificate=True;"
+            : $"Server=tcp:{serverAddress};Database={dbName};User Id={dbUser};Password={dbPassword};Encrypt=True;TrustServerCertificate=True;";
 
         var optionsBuilder = new DbContextOptionsBuilder<ErpDbContext>();
         optionsBuilder.UseSqlServer(connectionString);

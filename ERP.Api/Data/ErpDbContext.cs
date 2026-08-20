@@ -79,6 +79,10 @@ public class ErpDbContext : DbContext
                   CurrentCustomerId.HasValue && x.CustomerId == CurrentCustomerId.Value);
             modelBuilder.Entity<FgpoLine>().HasQueryFilter(x =>
                   CurrentCustomerId.HasValue && x.Fgpo != null && x.Fgpo.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FgpoLine>()
+                  .HasIndex(x => new { x.FgpoId, x.StyleId, x.ColorId, x.SizeId })
+                  .IsUnique()
+                  .HasFilter("[Active] = 1");
             modelBuilder.Entity<FabricRequirement>().HasQueryFilter(x =>
                   CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
             modelBuilder.Entity<FabricPOFgpo>().HasQueryFilter(x =>

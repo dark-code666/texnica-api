@@ -122,7 +122,14 @@ public class FgpoLineService : IFgpoLineService
         entity.UpdatedAt = DateTime.UtcNow;
 
         _context.FgpoLines.Update(entity);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_FgpoLines_FgpoId_StyleId_ColorId_SizeId", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            throw new Exception("Esa combinación Style/Color/Size ya existe en el FGPO.");
+        }
         return true;
     }
 
