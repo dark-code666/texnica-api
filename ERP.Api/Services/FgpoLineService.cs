@@ -58,7 +58,12 @@ public class FgpoLineService : IFgpoLineService
         if (dto.Quantity < 0)
             throw new Exception("La cantidad no puede ser negativa.");
 
-        var exists = await _context.FgpoLines.AnyAsync(l => l.FgpoId == dto.FgpoId && l.StyleId == dto.StyleId && l.ColorId == dto.ColorId && l.SizeId == dto.SizeId);
+        var exists = await _context.FgpoLines.AnyAsync(l =>
+            l.Active &&
+            l.FgpoId == dto.FgpoId &&
+            l.StyleId == dto.StyleId &&
+            l.ColorId == dto.ColorId &&
+            l.SizeId == dto.SizeId);
         if (exists)
             throw new Exception("Esa combinación Style/Color/Size ya existe en el FGPO.");
 
@@ -97,7 +102,13 @@ public class FgpoLineService : IFgpoLineService
         if (dto.Quantity < 0)
             throw new Exception("La cantidad no puede ser negativa.");
 
-        var exists = await _context.FgpoLines.AnyAsync(l => l.FgpoId == dto.FgpoId && l.StyleId == dto.StyleId && l.ColorId == dto.ColorId && l.SizeId == dto.SizeId && l.ID != id);
+        var exists = await _context.FgpoLines.AnyAsync(l =>
+            l.Active &&
+            l.FgpoId == dto.FgpoId &&
+            l.StyleId == dto.StyleId &&
+            l.ColorId == dto.ColorId &&
+            l.SizeId == dto.SizeId &&
+            l.ID != id);
         if (exists)
             throw new Exception("Esa combinación Style/Color/Size ya existe en el FGPO.");
 
