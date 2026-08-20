@@ -42,6 +42,7 @@ public class SizeService : ISizeService
         var entity = new Size
         {
             SizeCode = dto.SizeCode.Trim(),
+            Description = dto.Description?.Trim(),
             SortOrder = dto.SortOrder,
             Active = true,
             CreatedAt = DateTime.UtcNow,
@@ -66,6 +67,7 @@ public class SizeService : ISizeService
             throw new Exception("El Size ya existe.");
 
         entity.SizeCode = dto.SizeCode.Trim();
+        entity.Description = dto.Description?.Trim();
         entity.SortOrder = dto.SortOrder;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -93,7 +95,7 @@ public class SizeService : ISizeService
         if (!string.IsNullOrWhiteSpace(term))
         {
             var t = term.Trim();
-            query = query.Where(s => s.SizeCode.Contains(t));
+            query = query.Where(s => s.SizeCode.Contains(t) || (s.Description != null && s.Description.Contains(t)));
         }
         var items = await query.OrderBy(s => s.SortOrder).ToListAsync();
         return items.Select(ToDto);
@@ -110,7 +112,7 @@ public class SizeService : ISizeService
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
-            query = query.Where(s => s.SizeCode.Contains(term));
+            query = query.Where(s => s.SizeCode.Contains(term) || (s.Description != null && s.Description.Contains(term)));
         }
 
         var totalCount = await query.CountAsync();
@@ -146,6 +148,7 @@ public class SizeService : ISizeService
     {
         ID = item.ID,
         SizeCode = item.SizeCode,
+        Description = item.Description,
         SortOrder = item.SortOrder,
         Active = item.Active,
         CreatedAt = item.CreatedAt,

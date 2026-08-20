@@ -7,6 +7,8 @@
         public string UserEmail { get; set; } = null!;
         public bool Active { get; set; }
         public bool MustChangePassword { get; set; }
+        public int? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public int? RoleId { get; set; }
         public string? RoleName { get; set; }
     }

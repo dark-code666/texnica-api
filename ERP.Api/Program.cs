@@ -51,6 +51,7 @@
     });
 
     builder.Services.AddControllers();
+    builder.Services.AddHttpContextAccessor();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
@@ -224,6 +225,26 @@ builder.Services.AddAuthentication(options =>
     });
 
     app.UseAuthentication();
+
+    // El cliente activo debe coincidir con el cliente incluido en el token.
+    // Esto evita cambiar el contexto desde las herramientas del navegador.
+    app.Use(async (context, next) =>
+    {
+        if (context.User.Identity?.IsAuthenticated == true && context.Request.Path.StartsWithSegments("/api"))
+        {
+            var tokenCustomerId = context.User.FindFirst("customer_id")?.Value;
+            var headerCustomerId = context.Request.Headers["X-Customer-Id"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(tokenCustomerId) || tokenCustomerId != headerCustomerId)
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsJsonAsync(new { message = "El cliente activo no coincide con la sesión." });
+                return;
+            }
+        }
+
+        await next();
+    });
+
     app.UseAuthorization();
     app.MapGet("/", () => Results.Redirect("/swagger")).AllowAnonymous();
     app.MapControllers();

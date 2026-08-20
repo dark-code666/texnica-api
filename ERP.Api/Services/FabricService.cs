@@ -46,6 +46,8 @@ public class FabricService : IFabricService
             Color = dto.Color,
             Content = dto.Content,
             Construction = dto.Construction,
+            ThreadTitle = dto.ThreadTitle,
+            ThreadQuality = dto.ThreadQuality,
             Gsm = dto.Gsm,
             WeightOz = dto.WeightOz,
             Comments = dto.Comments,
@@ -76,6 +78,8 @@ public class FabricService : IFabricService
         entity.Color = dto.Color;
         entity.Content = dto.Content;
         entity.Construction = dto.Construction;
+        entity.ThreadTitle = dto.ThreadTitle;
+        entity.ThreadQuality = dto.ThreadQuality;
         entity.Gsm = dto.Gsm;
         entity.WeightOz = dto.WeightOz;
         entity.Comments = dto.Comments;
@@ -125,7 +129,9 @@ public class FabricService : IFabricService
             query = query.Where(f => f.FabricName.Contains(term)
                 || (f.FabricReference != null && f.FabricReference.Contains(term))
                 || (f.Color != null && f.Color.Contains(term))
-                || (f.Content != null && f.Content.Contains(term)));
+                || (f.Content != null && f.Content.Contains(term))
+                || (f.ThreadTitle != null && f.ThreadTitle.Contains(term))
+                || (f.ThreadQuality != null && f.ThreadQuality.Contains(term)));
         }
 
         var totalCount = await query.CountAsync();
@@ -163,6 +169,8 @@ public class FabricService : IFabricService
         Color = item.Color,
         Content = item.Content,
         Construction = item.Construction,
+        ThreadTitle = item.ThreadTitle,
+        ThreadQuality = item.ThreadQuality,
         Gsm = item.Gsm,
         WeightOz = item.WeightOz,
         Comments = item.Comments,

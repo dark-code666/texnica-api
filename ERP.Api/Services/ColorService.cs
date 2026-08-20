@@ -41,6 +41,8 @@ public class ColorService : IColorService
 
         var entity = new Color
         {
+            ColorCode = dto.ColorCode?.Trim(),
+            AlternateCode = dto.AlternateCode?.Trim(),
             ColorName = dto.ColorName.Trim(),
             DyeMethod = dto.DyeMethod,
             Active = true,
@@ -65,6 +67,8 @@ public class ColorService : IColorService
         if (exists)
             throw new Exception("El Color ya existe.");
 
+        entity.ColorCode = dto.ColorCode?.Trim();
+        entity.AlternateCode = dto.AlternateCode?.Trim();
         entity.ColorName = dto.ColorName.Trim();
         entity.DyeMethod = dto.DyeMethod;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -93,7 +97,10 @@ public class ColorService : IColorService
         if (!string.IsNullOrWhiteSpace(term))
         {
             var t = term.Trim();
-            query = query.Where(c => c.ColorName.Contains(t) || (c.DyeMethod != null && c.DyeMethod.Contains(t)));
+            query = query.Where(c => c.ColorName.Contains(t)
+                || (c.ColorCode != null && c.ColorCode.Contains(t))
+                || (c.AlternateCode != null && c.AlternateCode.Contains(t))
+                || (c.DyeMethod != null && c.DyeMethod.Contains(t)));
         }
         var items = await query.OrderBy(c => c.ColorName).ToListAsync();
         return items.Select(ToDto);
@@ -110,7 +117,10 @@ public class ColorService : IColorService
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
-            query = query.Where(c => c.ColorName.Contains(term) || (c.DyeMethod != null && c.DyeMethod.Contains(term)));
+            query = query.Where(c => c.ColorName.Contains(term)
+                || (c.ColorCode != null && c.ColorCode.Contains(term))
+                || (c.AlternateCode != null && c.AlternateCode.Contains(term))
+                || (c.DyeMethod != null && c.DyeMethod.Contains(term)));
         }
 
         var totalCount = await query.CountAsync();
@@ -143,6 +153,8 @@ public class ColorService : IColorService
     private static ColorDto ToDto(Color item) => new()
     {
         ID = item.ID,
+        ColorCode = item.ColorCode,
+        AlternateCode = item.AlternateCode,
         ColorName = item.ColorName,
         DyeMethod = item.DyeMethod,
         Active = item.Active,

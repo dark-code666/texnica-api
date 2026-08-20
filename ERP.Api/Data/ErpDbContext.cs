@@ -1,13 +1,28 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using ERP.Api.Domain;
 
 namespace ERP.Api.Data;
 
 public class ErpDbContext : DbContext
 {
-    public ErpDbContext(DbContextOptions<ErpDbContext> options) : base(options)
+      private readonly IHttpContextAccessor _httpContextAccessor;
+
+      public ErpDbContext(
+            DbContextOptions<ErpDbContext> options,
+            IHttpContextAccessor httpContextAccessor) : base(options)
     {
+            _httpContextAccessor = httpContextAccessor;
     }
+
+      public int? CurrentCustomerId
+      {
+            get
+            {
+                  var value = _httpContextAccessor.HttpContext?.User.FindFirst("customer_id")?.Value;
+                  return int.TryParse(value, out var customerId) ? customerId : null;
+            }
+      }
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
@@ -58,6 +73,68 @@ public class ErpDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+            // Customer is selected at login and stored in the JWT. All operational
+            // records are scoped here so reads and writes cannot cross customers.
+            modelBuilder.Entity<Fgpo>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FgpoLine>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.Fgpo != null && x.Fgpo.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricRequirement>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricPOFgpo>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricPO>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FabricPOFgpos.Any(link =>
+                        link.FGPO != null && link.FGPO.CustomerId == CurrentCustomerId.Value));
+            modelBuilder.Entity<Lot>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<MillProduction>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<MillTest>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricShipment>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricReceiving>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<RollReceiving>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FourPointInspection>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<InternalTest>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricInventory>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FabricReservation>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<AqlInspection>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<InlineQuality>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<ShadeMatch>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<PpSample>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<TopSample>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<ProductionReadiness>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<CuttingRelease>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<CuttingControl>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<CuttingPanelQc>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<TrimsControl>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<SewingProduction>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<PackingControl>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<FinishedGood>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+            modelBuilder.Entity<ShipmentControl>().HasQueryFilter(x =>
+                  CurrentCustomerId.HasValue && x.FGPO != null && x.FGPO.CustomerId == CurrentCustomerId.Value);
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.ID);
@@ -268,6 +345,34 @@ public class ErpDbContext : DbContext
                   .HasForeignKey(f => f.ApprovedByUserId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
+
+            modelBuilder.Entity<Fabric>(entity =>
+            {
+                  entity.Property(e => e.FabricReference).HasMaxLength(100);
+                  entity.Property(e => e.FabricName).IsRequired().HasMaxLength(200);
+                  entity.Property(e => e.Color).HasMaxLength(100);
+                  entity.Property(e => e.Content).HasMaxLength(200);
+                  entity.Property(e => e.Construction).HasMaxLength(200);
+                  entity.Property(e => e.ThreadTitle).HasMaxLength(200);
+                  entity.Property(e => e.ThreadQuality).HasMaxLength(200);
+                  entity.Property(e => e.Gsm).HasPrecision(18, 4);
+                  entity.Property(e => e.WeightOz).HasPrecision(18, 4);
+                  entity.Property(e => e.Comments).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<Color>(entity =>
+            {
+                  entity.Property(e => e.ColorCode).HasMaxLength(50);
+                  entity.Property(e => e.AlternateCode).HasMaxLength(50);
+                  entity.Property(e => e.ColorName).IsRequired().HasMaxLength(100);
+                  entity.Property(e => e.DyeMethod).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Size>(entity =>
+            {
+                  entity.Property(e => e.SizeCode).IsRequired().HasMaxLength(50);
+                  entity.Property(e => e.Description).HasMaxLength(200);
+            });
 
         modelBuilder.Entity<FabricPOFgpo>(entity =>
         {

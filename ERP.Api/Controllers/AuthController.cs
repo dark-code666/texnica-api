@@ -14,11 +14,21 @@ public class AuthController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly CryptoService _crypto;
+    private readonly ICustomerService _customerService;
 
-    public AuthController(IUserService userService, CryptoService crypto)
+    public AuthController(IUserService userService, CryptoService crypto, ICustomerService customerService)
     {
         _userService = userService;
         _crypto = crypto;
+        _customerService = customerService;
+    }
+
+    [AllowAnonymous]
+    [HttpGet("login-customers")]
+    public async Task<IActionResult> GetLoginCustomers()
+    {
+        var customers = await _customerService.GetAllAsync();
+        return Ok(customers.Where(c => c.Active).Select(c => new { id = c.ID, name = c.Name }));
     }
 
     // Clave pública RSA para que el navegador cifre el password antes de enviarlo
@@ -37,22 +47,6 @@ public class AuthController : ControllerBase
     {
         if (!string.IsNullOrWhiteSpace(dto.EncryptedPassword))
             dto.Password = _crypto.DecryptPassword(dto.EncryptedPassword);
-    }
-
-    [AllowAnonymous]
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
-    {
-        try
-        {
-            ResolvePassword(dto);
-            var response = await _userService.RegisterAsync(dto);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
     }
 
     // Creación desde el sistema (admin): asigna la contraseña por defecto (inicio)

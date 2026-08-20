@@ -3,6 +3,8 @@ namespace ERP.Api.Dtos;
 public class ColorDto
 {
     public int ID { get; set; }
+    public string? ColorCode { get; set; }
+    public string? AlternateCode { get; set; }
     public string ColorName { get; set; } = null!;
     public string? DyeMethod { get; set; }
     public bool Active { get; set; }

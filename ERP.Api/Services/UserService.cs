@@ -122,8 +122,13 @@ public class UserService : IUserService
         if (!isPasswordValid)
             throw new Exception("Credenciales incorrectas o usuario inactivo.");
 
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.ID == loginDto.CustomerId && c.Active);
+        if (customer is null)
+            throw new Exception("El cliente seleccionado no es válido.");
+
         // Generar Token
-        var token = GenerateJwtToken(user);
+        var token = GenerateJwtToken(user, customer.ID);
 
         return new AuthResponseDto
         {
@@ -134,7 +139,9 @@ public class UserService : IUserService
                 UserName = user.UserName,
                 UserEmail = user.UserEmail,
                 Active = user.Active,
-                MustChangePassword = user.MustChangePassword
+                MustChangePassword = user.MustChangePassword,
+                CustomerId = customer.ID,
+                CustomerName = customer.Name
             }
         };
     }
@@ -168,7 +175,7 @@ public class UserService : IUserService
     }
 
 
-    private string GenerateJwtToken(User user)
+    private string GenerateJwtToken(User user, int? customerId = null)
     {
 
         try
@@ -194,7 +201,8 @@ public class UserService : IUserService
             new Claim(JwtRegisteredClaimNames.Sub, user.ID.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.UserEmail),
             new Claim(ClaimTypes.Name, user.UserName),
-            new Claim("active", user.Active.ToString())
+            new Claim("active", user.Active.ToString()),
+            new Claim("customer_id", customerId?.ToString() ?? string.Empty)
         };
 
             var token = new JwtSecurityToken(

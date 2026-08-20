@@ -7,6 +7,8 @@ public class UpdateFabricDto
     public string? Color { get; set; }
     public string? Content { get; set; }
     public string? Construction { get; set; }
+    public string? ThreadTitle { get; set; }
+    public string? ThreadQuality { get; set; }
     public decimal? Gsm { get; set; }
     public decimal? WeightOz { get; set; }
     public string? Comments { get; set; }

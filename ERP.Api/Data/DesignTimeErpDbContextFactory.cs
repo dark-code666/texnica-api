@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.AspNetCore.Http;
 using ERP.Api.Domain;
 
 namespace ERP.Api.Data;
@@ -61,7 +62,7 @@ public class DesignTimeErpDbContextFactory : IDesignTimeDbContextFactory<ErpDbCo
         var optionsBuilder = new DbContextOptionsBuilder<ErpDbContext>();
         optionsBuilder.UseSqlServer(connectionString);
 
-        return new ErpDbContext(optionsBuilder.Options);
+        return new ErpDbContext(optionsBuilder.Options, new HttpContextAccessor());
     }
 
     private static string? GetEnv(string key)

@@ -14,6 +14,7 @@ public class RegisterUserDto
 public class LoginUserDto
 {
     public string UserName { get; set; } = null!;
+    public int CustomerId { get; set; }
     // Password en claro (compatibilidad) o el descifrado de EncryptedPassword.
     public string? Password { get; set; }
     // Password cifrado en el navegador (RSA-OAEP). Si viene, se descifra en el servidor.
@@ -27,6 +28,8 @@ public class UserDto
     public string UserEmail { get; set; } = null!;
     public bool Active { get; set; }
     public bool MustChangePassword { get; set; }
+    public int? CustomerId { get; set; }
+    public string? CustomerName { get; set; }
 }
 
 public class AuthResponseDto
