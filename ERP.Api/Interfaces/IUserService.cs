@@ -13,6 +13,10 @@ public interface IUserService
     Task<bool> AssignRoleToUserAsync(int userId, int roleId);
     Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto changePasswordDto);
     Task<List<ERP.Api.Dtos.User.UserDto>> GetAllUsersAsync();
+    Task<(string UserType, int? CustomerId, string? CustomerName)> GetLoginProfileAsync(string userName);
+    Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto);
+    Task<bool> ResetPasswordAsync(int userId, string? newPassword);
+    Task<bool> SetUserActiveAsync(int userId, bool active);
 
 }
 

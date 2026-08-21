@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using ERP.Api.Domain;
+using System.Security.Claims;
 
 namespace ERP.Api.Data;
 
@@ -22,6 +23,46 @@ public class ErpDbContext : DbContext
                   var value = _httpContextAccessor.HttpContext?.User.FindFirst("customer_id")?.Value;
                   return int.TryParse(value, out var customerId) ? customerId : null;
             }
+      }
+
+      private int? CurrentUserId
+      {
+            get
+            {
+                  var value = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                        ?? _httpContextAccessor.HttpContext?.User.FindFirstValue("sub");
+                  return int.TryParse(value, out var userId) ? userId : null;
+            }
+      }
+
+      private void ApplyAutomaticDataOwner()
+      {
+            var userId = CurrentUserId;
+            if (!userId.HasValue)
+            {
+                  return;
+            }
+
+            foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
+            {
+                  var property = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "DataOwnerId");
+                  if (property is not null)
+                  {
+                        property.CurrentValue = userId.Value;
+                  }
+            }
+      }
+
+      public override int SaveChanges()
+      {
+            ApplyAutomaticDataOwner();
+            return base.SaveChanges();
+      }
+
+      public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+      {
+            ApplyAutomaticDataOwner();
+            return base.SaveChangesAsync(cancellationToken);
       }
 
     public DbSet<User> Users => Set<User>();
@@ -152,6 +193,12 @@ public class ErpDbContext : DbContext
             entity.HasOne(u => u.Role)
                   .WithMany(r => r.Users)
                   .HasForeignKey(u => u.RoleId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(u => u.UserType).IsRequired().HasMaxLength(20).HasDefaultValue("Employee");
+            entity.HasOne(u => u.Customer)
+                  .WithMany()
+                  .HasForeignKey(u => u.CustomerId)
                   .OnDelete(DeleteBehavior.Restrict);
         });
 

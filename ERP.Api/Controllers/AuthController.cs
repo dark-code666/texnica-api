@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ERP.Api.Dtos;
+using ERP.Api.Dtos.User;
 using ERP.Api.Interfaces;
 using ERP.Api.Services;
 
@@ -29,6 +30,18 @@ public class AuthController : ControllerBase
     {
         var customers = await _customerService.GetAllAsync();
         return Ok(customers.Where(c => c.Active).Select(c => new { id = c.ID, name = c.Name }));
+    }
+
+    [AllowAnonymous]
+    [HttpGet("login-profile")]
+    public async Task<IActionResult> GetLoginProfile([FromQuery] string userName)
+    {
+        try
+        {
+            var profile = await _userService.GetLoginProfileAsync(userName);
+            return Ok(new { userType = profile.UserType, customerId = profile.CustomerId, customerName = profile.CustomerName });
+        }
+        catch { return NotFound(new { message = "Usuario no encontrado." }); }
     }
 
     // Clave pública RSA para que el navegador cifre el password antes de enviarlo
@@ -133,6 +146,27 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    [HttpPut("users/{id}")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
+    {
+        try { return await _userService.UpdateUserAsync(id, dto) ? NoContent() : NotFound(); }
+        catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpPost("users/{id}/reset-password")]
+    public async Task<IActionResult> ResetPassword(int id, [FromBody] ResetPasswordDto dto)
+    {
+        try { return await _userService.ResetPasswordAsync(id, dto.NewPassword) ? Ok(new { message = "Contraseña restablecida." }) : NotFound(); }
+        catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
+    [HttpPatch("users/{id}/active")]
+    public async Task<IActionResult> SetUserActive(int id, [FromBody] SetUserActiveDto dto)
+    {
+        try { return await _userService.SetUserActiveAsync(id, dto.Active) ? NoContent() : NotFound(); }
+        catch (Exception ex) { return BadRequest(new { message = ex.Message }); }
     }
 }
 

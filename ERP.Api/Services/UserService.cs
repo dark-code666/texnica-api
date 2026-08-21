@@ -81,6 +81,8 @@ public class UserService : IUserService
         if (userExists)
             throw new Exception("El correo electrónico ya está registrado.");
 
+        var userType = NormalizeUserType(registerDto.UserType);
+        var customer = await ResolveAssignedCustomerAsync(userType, registerDto.CustomerId);
         var user = new User
         {
             UserName = registerDto.UserName,
@@ -88,6 +90,8 @@ public class UserService : IUserService
             Password = BCrypt.Net.BCrypt.HashPassword(DefaultPassword),
             Active = true,
             MustChangePassword = true
+            ,UserType = userType
+            ,CustomerId = customer?.ID
         };
 
         _context.Users.Add(user);
@@ -105,6 +109,9 @@ public class UserService : IUserService
                 UserEmail = user.UserEmail,
                 Active = user.Active,
                 MustChangePassword = user.MustChangePassword
+                ,CustomerId = user.CustomerId
+                ,CustomerName = customer?.Name
+                ,UserType = user.UserType
             }
         };
     }
@@ -122,8 +129,13 @@ public class UserService : IUserService
         if (!isPasswordValid)
             throw new Exception("Credenciales incorrectas o usuario inactivo.");
 
+        var userType = NormalizeUserType(user.UserType);
+        var customerId = userType == "Client" ? user.CustomerId : loginDto.CustomerId;
+        if (!customerId.HasValue || customerId.Value <= 0)
+            throw new Exception(userType == "Client" ? "El usuario cliente no tiene un cliente asignado." : "Selecciona un cliente para continuar.");
+
         var customer = await _context.Customers
-            .FirstOrDefaultAsync(c => c.ID == loginDto.CustomerId && c.Active);
+            .FirstOrDefaultAsync(c => c.ID == customerId.Value && c.Active);
         if (customer is null)
             throw new Exception("El cliente seleccionado no es válido.");
 
@@ -142,6 +154,7 @@ public class UserService : IUserService
                 MustChangePassword = user.MustChangePassword,
                 CustomerId = customer.ID,
                 CustomerName = customer.Name
+                ,UserType = userType
             }
         };
     }
@@ -244,6 +257,7 @@ public class UserService : IUserService
     {
         var users = await _context.Users
             .Include(u => u.Role)
+            .Include(u => u.Customer)
             .OrderBy(u => u.UserName)
             .ToListAsync();
 
@@ -256,7 +270,81 @@ public class UserService : IUserService
             MustChangePassword = u.MustChangePassword,
             RoleId = u.RoleId,
             RoleName = u.Role?.Name
+            ,CustomerId = u.CustomerId
+            ,CustomerName = u.Customer?.Name
+            ,UserType = u.UserType
         }).ToList();
+    }
+
+    public async Task<bool> UpdateUserAsync(int userId, UpdateUserDto dto)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.ID == userId);
+        if (user is null) return false;
+        if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.UserEmail))
+            throw new Exception("El nombre de usuario y el correo son obligatorios.");
+        if (await _context.Users.AnyAsync(u => u.ID != userId && (u.UserName == dto.UserName || u.UserEmail == dto.UserEmail)))
+            throw new Exception("El usuario o correo ya está registrado.");
+
+        var userType = NormalizeUserType(dto.UserType);
+        var customer = await ResolveAssignedCustomerAsync(userType, dto.CustomerId);
+        user.UserName = dto.UserName.Trim();
+        user.UserEmail = dto.UserEmail.Trim();
+        user.UserType = userType;
+        user.CustomerId = customer?.ID;
+        user.RoleId = dto.RoleId;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ResetPasswordAsync(int userId, string? newPassword)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.ID == userId);
+        if (user is null) return false;
+        var password = string.IsNullOrWhiteSpace(newPassword) ? DefaultPassword : newPassword;
+        if (password.Length < 6) throw new Exception("La contraseña debe tener al menos 6 caracteres.");
+        user.Password = BCrypt.Net.BCrypt.HashPassword(password);
+        user.MustChangePassword = true;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> SetUserActiveAsync(int userId, bool active)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.ID == userId);
+        if (user is null) return false;
+        user.Active = active;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<(string UserType, int? CustomerId, string? CustomerName)> GetLoginProfileAsync(string userName)
+    {
+        var user = await _context.Users.Include(u => u.Customer)
+            .FirstOrDefaultAsync(u => u.UserName == userName && u.Active);
+        if (user is null) throw new Exception("Usuario no encontrado.");
+        return (NormalizeUserType(user.UserType), user.CustomerId, user.Customer?.Name);
+    }
+
+    private static string NormalizeUserType(string? userType) =>
+        string.Equals(userType, "Client", StringComparison.OrdinalIgnoreCase) ? "Client" : "Employee";
+
+    private async Task<Customer?> ResolveAssignedCustomerAsync(string userType, int? customerId)
+    {
+        if (userType == "Employee")
+        {
+            if (customerId.HasValue)
+                throw new Exception("Los usuarios Employee no deben tener un cliente asignado.");
+            return null;
+        }
+
+        if (!customerId.HasValue)
+            throw new Exception("Los usuarios Client requieren un cliente asignado.");
+        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.ID == customerId.Value && c.Active);
+        if (customer is null) throw new Exception("El cliente asignado no es válido.");
+        return customer;
     }
 
 }

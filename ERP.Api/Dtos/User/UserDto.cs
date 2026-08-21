@@ -9,6 +9,7 @@
         public bool MustChangePassword { get; set; }
         public int? CustomerId { get; set; }
         public string? CustomerName { get; set; }
+        public string UserType { get; set; } = "Employee";
         public int? RoleId { get; set; }
         public string? RoleName { get; set; }
     }

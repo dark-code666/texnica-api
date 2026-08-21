@@ -9,6 +9,8 @@ public class RegisterUserDto
     public string? Password { get; set; }
     // Password cifrado en el navegador (RSA-OAEP). Si viene, se descifra en el servidor.
     public string? EncryptedPassword { get; set; }
+    public string UserType { get; set; } = "Employee";
+    public int? CustomerId { get; set; }
 }
 
 public class LoginUserDto
@@ -30,6 +32,7 @@ public class UserDto
     public bool MustChangePassword { get; set; }
     public int? CustomerId { get; set; }
     public string? CustomerName { get; set; }
+    public string UserType { get; set; } = "Employee";
 }
 
 public class AuthResponseDto
